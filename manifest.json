@@ -1,0 +1,50 @@
+{
+    "manifest_version": 3,
+    "name": "PIP Anywhere — Picture-in-Picture for Netflix & More (Alt + P)",
+    "version": "1.0.0",
+    "author": "Mirjan Ali Sha <mastools.help@gmail.com>",
+    "description": "Enable Picture-in-Picture mode on Netflix, YouTube, and any website. Bypass PIP restrictions effortlessly.",
+    "permissions": [
+        "activeTab",
+        "scripting"
+    ],
+    "action": {
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
+    },
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "content.css"
+            ],
+            "run_at": "document_idle",
+            "all_frames": true
+        }
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "commands": {
+        "toggle-pip": {
+            "suggested_key": {
+                "default": "Alt+P",
+                "mac": "Alt+P"
+            },
+            "description": "Toggle Picture-in-Picture mode"
+        }
+    }
+}
