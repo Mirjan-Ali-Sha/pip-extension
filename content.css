@@ -4,7 +4,7 @@
 /* ─── Overlay PIP Button ──────────────────────────────────────── */
 .pip-anywhere-btn {
     position: absolute;
-    top: 35% !important;
+    top: 15% !important;
     right: 15px !important;
     bottom: auto !important;
     left: auto !important;
