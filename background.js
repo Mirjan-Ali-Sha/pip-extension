@@ -35,6 +35,7 @@ chrome.action.onClicked.addListener(togglePIP);
 
 // Handle Keyboard Shortcut
 chrome.commands.onCommand.addListener((command) => {
+    console.log('[Background] Command received:', command);
     if (command === 'toggle-pip') {
         chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
             if (tab) togglePIP(tab);

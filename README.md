@@ -1,15 +1,20 @@
 # PIP Anywhere
 
-**PIP Anywhere** is a powerful and lightweight Chrome extension that enables Picture-in-Picture (PIP) mode on almost any video on the web. Whether it's YouTube, Netflix, Hotstar, or a custom video player, PIP Anywhere attempts to liberate your video from the browser tab, allowing you to watch while you work, browse, or multi-task.
+**PIP Anywhere** is a powerful and lightweight Chrome extension that enables Picture-in-Picture (PIP) mode on almost any video on the web, **plus a built-in ad blocker**. Whether it's YouTube, Netflix, Hotstar, or a custom video player, PIP Anywhere liberates your video from the browser tab, allowing you to watch while you work, browse, or multi-task — all with cleaner, ad-free pages.
 
 ## Key Features
 
-*   **Universal Compatibility**: Works on the vast majority of websites containing HTML5 videos.
+*   **Universal PIP**: Works on the vast majority of websites containing HTML5 videos.
+*   **Built-in Ad Blocker**: Three-layer ad blocking:
+    *   **Network-level**: Blocks 50+ ad domains at the network layer (like Brave Shields)
+    *   **YouTube Ads**: Auto-skips skippable ads, fast-forwards unskippable ads, hides overlays
+    *   **Cosmetic Filtering**: Hides ad containers on all websites via CSS
 *   **Smart Detection**: Automatically finds the most relevant video on the page, even inside iframes or Shadow DOMs.
 *   **Overlay Button**: Adds a convenient, unobtrusive button to compatible video players.
 *   **Keyboard Shortcut**: Toggle PIP instantly with `Alt + P`.
 *   **Draggable & Resizable**: Uses the browser's native PIP window, which can be moved and resized freely.
 *   **Performance Friendly**: Lightweight script that doesn't drain your resources.
+*   **Zero Data Collection**: Runs entirely locally. No analytics, no tracking.
 
 ## Installation
 
@@ -45,6 +50,11 @@ Since this extension is currently in development/unpacked state:
 *   **PIP blocked?**
     *   Some sites aggressively block PIP. This extension tries to bypass standard restrictions, but DRM-heavy sites might still have limitations.
     *   Clicking "Play" *before* trying to enter PIP often resolves issues.
+*   **Keyboard Shortcut (Alt+P) not working?**
+    *   Go to `chrome://extensions/shortcuts` in your browser.
+    *   Find "PIP Anywhere".
+    *   Ensure `Alt+P` is set and not conflicting with another extension.
+    *   You can click the pencil icon to reassign it to a different key combo if needed.
 
 ## Privacy Policy
 

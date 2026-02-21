@@ -1,31 +1,62 @@
 {
-    "name": "Islamic Calendar — Hijri Calendar & Events",
-    "short_name": "Islamic Calendar",
-    "description": "Islamic Hijri Calendar with comprehensive event listings, dual-date display, and multi-language support.",
-    "start_url": "./index.html",
-    "display": "standalone",
-    "background_color": "#0a1628",
-    "theme_color": "#0a1628",
-    "orientation": "portrait-primary",
-    "scope": "./",
-    "icons": [
+    "manifest_version": 3,
+    "name": "PIP Anywhere — PIP + Ad Blocker for Any Site (Alt + P)",
+    "version": "1.0.0",
+    "author": "Mirjan Ali Sha <mastools.help@gmail.com>",
+    "description": "Enable Picture-in-Picture on any website + built-in ad blocker. Bypass PIP restrictions & block ads effortlessly.",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "declarativeNetRequest"
+    ],
+    "action": {
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
+    },
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "content_scripts": [
         {
-            "src": "icons/icon-192.svg",
-            "sizes": "192x192",
-            "type": "image/svg+xml",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "icons/icon-512.svg",
-            "sizes": "512x512",
-            "type": "image/svg+xml",
-            "purpose": "any maskable"
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js",
+                "adblocker.js"
+            ],
+            "css": [
+                "content.css",
+                "adblocker.css"
+            ],
+            "run_at": "document_idle",
+            "all_frames": true
         }
     ],
-    "categories": [
-        "education",
-        "lifestyle"
-    ],
-    "lang": "en",
-    "dir": "ltr"
+    "background": {
+        "service_worker": "background.js"
+    },
+    "commands": {
+        "toggle-pip": {
+            "suggested_key": {
+                "default": "Alt+P",
+                "mac": "Alt+P"
+            },
+            "description": "Toggle Picture-in-Picture mode"
+        }
+    },
+    "declarative_net_request": {
+        "rule_resources": [
+            {
+                "id": "ad_blocker_rules",
+                "enabled": true,
+                "path": "rules.json"
+            }
+        ]
+    }
 }

@@ -1,0 +1,87 @@
+/* PIP Anywhere — Cosmetic Ad Blocker Styles */
+/* @author Mirjan Ali Sha <mastools.help@gmail.com> */
+
+/* ─── YouTube Ad Elements ──────────────────────────────────────── */
+
+/* Hide YouTube overlay ads */
+.ytp-ad-overlay-container,
+.ytp-ad-overlay-slot,
+.ytp-ad-overlay-image,
+.ytp-ad-text-overlay,
+.video-ads.ytp-ad-module,
+.ytp-ad-message-container,
+.ytp-ad-preview-container,
+.ytp-ad-player-overlay-instream-info {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Hide YouTube page-level ads */
+#player-ads,
+#masthead-ad,
+#promotions,
+ytd-promoted-sparkles-web-renderer,
+ytd-promoted-video-renderer,
+ytd-display-ad-renderer,
+ytd-companion-slot-renderer,
+ytd-action-companion-ad-renderer,
+ytd-in-feed-ad-layout-renderer,
+ytd-ad-slot-renderer,
+ytd-banner-promo-renderer,
+ytd-statement-banner-renderer,
+ytd-promoted-sparkles-text-search-renderer,
+ytd-merch-shelf-renderer,
+.ytd-merch-shelf-renderer,
+tp-yt-paper-dialog:has(#mealbar-promo-renderer) {
+    display: none !important;
+}
+
+/* ─── General Ad Elements (All Sites) ──────────────────────────── */
+
+/* Google Ads */
+ins.adsbygoogle,
+[id*="google_ads_iframe"],
+[id*="div-gpt-ad"],
+[class*="adsbygoogle"] {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Common ad containers */
+[class*="ad-banner"],
+[class*="ad-container"],
+[class*="ad-wrapper"],
+[class*="ad-slot"],
+.ad-placeholder,
+.advertisement,
+.sponsored-content,
+div[aria-label="advertisement"],
+aside[aria-label="Sponsored"] {
+    display: none !important;
+}
+
+/* Ad iframes */
+iframe[src*="doubleclick.net"],
+iframe[src*="googlesyndication.com"],
+iframe[src*="googleadservices.com"],
+iframe[src*="amazon-adsystem.com"],
+iframe[src*="taboola.com"],
+iframe[src*="outbrain.com"] {
+    display: none !important;
+    height: 0 !important;
+    width: 0 !important;
+}
+
+/* Data-attribute based ads */
+[data-ad],
+[data-ad-slot],
+[data-ad-client],
+[data-adunit] {
+    display: none !important;
+}

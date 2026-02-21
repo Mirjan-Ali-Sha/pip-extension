@@ -283,4 +283,14 @@
     // Fallback interval
     setInterval(scan, 1500);
 
+    // ─── Shortcut Fallback ────────────────────────────────────────────
+    // Since chrome.commands can be flaky or unbound, we listen manually too.
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && (e.code === 'KeyP' || e.key === 'p' || e.key === 'P')) {
+            // We don't preventDefault() immediately to avoid breaking other things
+            // unless we are sure we handled it.
+            togglePIP(true);
+        }
+    });
+
 })();
