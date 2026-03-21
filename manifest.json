@@ -5,11 +5,16 @@
     "author": "Mirjan Ali Sha <mastools.help@gmail.com>",
     "description": "Enable Picture-in-Picture on any website + built-in ad blocker. Bypass PIP restrictions & block ads effortlessly.",
     "permissions": [
+        "tabs",
         "activeTab",
         "scripting",
         "declarativeNetRequest"
     ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
     "action": {
+        "default_popup": "popup.html",
         "default_icon": {
             "16": "icons/icon16.png",
             "48": "icons/icon48.png",
@@ -31,7 +36,20 @@
                 "adblocker.js"
             ],
             "css": [
-                "content.css",
+                "content.css"
+            ],
+            "run_at": "document_idle",
+            "all_frames": true
+        },
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "exclude_matches": [
+                "*://*.youtube.com/*",
+                "*://youtube.com/*"
+            ],
+            "css": [
                 "adblocker.css"
             ],
             "run_at": "document_idle",
@@ -47,7 +65,7 @@
                 "default": "Alt+P",
                 "mac": "Alt+P"
             },
-            "description": "Toggle Picture-in-Picture mode"
+            "description": "Open Media Hub"
         }
     },
     "declarative_net_request": {

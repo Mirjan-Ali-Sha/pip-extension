@@ -238,7 +238,7 @@
 
     // ─── Listeners & Observers ────────────────────────────────────────
 
-    // Message from background
+    // Message from background or popup
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         if (msg.type === 'toggle-pip') {
             togglePIP(true).then(handled => {
@@ -254,6 +254,33 @@
                 size: video ? (video.clientWidth * video.clientHeight) : 0,
                 isMainFrame: window.self === window.top
             });
+        } else if (msg.type === 'ping-videos') {
+            const vs = findAllVideos();
+            if (vs.length > 0) {
+                const list = vs.map(v => {
+                    if (!v.dataset.pipId) v.dataset.pipId = Math.random().toString(36).substring(2, 10);
+                    return {
+                        id: v.dataset.pipId,
+                        playing: !v.paused && !v.ended && v.readyState > 2,
+                        pip: document.pictureInPictureElement === v
+                    };
+                });
+                chrome.runtime.sendMessage({ type: 'pong-videos', tabId: msg.tabId, videos: list });
+            }
+        } else if (msg.type === 'video-command') {
+            const vs = findAllVideos();
+            const v = vs.find(x => x.dataset.pipId === msg.id);
+            if (v) {
+                if (msg.command === 'play') v.play();
+                else if (msg.command === 'pause') v.pause();
+                else if (msg.command === 'forward') v.currentTime += 10;
+                else if (msg.command === 'backward') v.currentTime -= 10;
+                else if (msg.command === 'pip') {
+                    if (document.pictureInPictureElement === v) document.exitPictureInPicture();
+                    else { enablePIP(v); v.requestPictureInPicture(); }
+                }
+                sendResponse({ success: true });
+            }
         }
     });
 

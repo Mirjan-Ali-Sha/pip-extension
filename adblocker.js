@@ -33,18 +33,34 @@
                 'button.ytp-ad-skip-button',
                 '.ytp-ad-skip-button-slot button',
                 '.videoAdUiSkipButton',
-                '[id="skip-button:8"] button',
+                '[id^="skip-button"] button',
                 '.ytp-ad-skip-button-container button',
-                'button[class*="skip"]'
+                'button[class*="skip"]',
+                '.ytp-ad-text.ytp-ad-skip-button-text'
             ];
 
             for (const sel of skipSelectors) {
-                const btn = document.querySelector(sel);
-                if (btn && btn.offsetParent !== null) {
-                    btn.click();
-                    return true;
+                const buttons = document.querySelectorAll(sel);
+                for (const btn of buttons) {
+                    if (btn && btn.offsetParent !== null) {
+                        btn.click();
+                        return true;
+                    }
                 }
             }
+            
+            // Text-based fallback for dynamically obfuscated buttons
+            const allButtons = document.querySelectorAll('button, .ytp-ad-text');
+            for (const btn of allButtons) {
+                if (btn && btn.offsetParent !== null) {
+                    const text = btn.innerText.toLowerCase();
+                    if (text === 'skip ad' || text === 'skip ads' || text === 'skip') {
+                        btn.click();
+                        return true;
+                    }
+                }
+            }
+            
             return false;
         }
 
@@ -72,21 +88,14 @@
                     video.muted = true;
                 }
 
-                // Speed up to maximum
-                if (!adSpeedApplied) {
-                    try {
-                        video.playbackRate = 16;
-                    } catch (e) {
-                        // Some players cap the rate; try lower
-                        try { video.playbackRate = 8; } catch (e2) { /* ignore */ }
-                    }
-                    adSpeedApplied = true;
+                // Speed up to maximum constantly
+                try {
+                    video.playbackRate = 16;
+                } catch (e) {
+                    // Some players cap the rate; try lower
+                    try { video.playbackRate = 8; } catch (e2) { /* ignore */ }
                 }
-
-                // Try to skip to end
-                if (video.duration && isFinite(video.duration) && video.duration > 0) {
-                    video.currentTime = video.duration - 0.1;
-                }
+                adSpeedApplied = true;
 
                 // Keep trying to click skip
                 tryClickSkip();
@@ -142,16 +151,113 @@
 
             adSelectors.forEach(sel => {
                 document.querySelectorAll(sel).forEach(el => {
-                    el.style.setProperty('display', 'none', 'important');
+                    el.style.setProperty('opacity', '0', 'important');
+                    el.style.setProperty('pointer-events', 'none', 'important');
                 });
             });
         }
 
+        let hideCosmetic = true;
+        let skipAdsEnabled = true;
+        let antiAdblockCloseAttempts = 0;
+
+        /**
+         * Detect anti-adblock enforcement and disable cosmetic filters if needed.
+         */
+        function checkAndBypassAntiAdblock() {
+            const selectors = [
+                'ytd-enforcement-message-view-model',
+                'tp-yt-paper-dialog',
+                '#error-screen',
+                '.ytp-error',
+                'ytd-popup-container'
+            ];
+            
+            let enforcementEl = null;
+            
+            // Helper to pierce shadow DOM for text
+            function hasAdblockText(node) {
+                if (!node) return false;
+                const text = (node.innerText || node.textContent || '').toLowerCase();
+                if (text.includes('ad blocker') || text.includes('allow youtube ads')) return true;
+                if (node.shadowRoot) {
+                    if (hasAdblockText(node.shadowRoot)) return true;
+                }
+                for (let i = 0; i < node.children.length; i++) {
+                    if (hasAdblockText(node.children[i])) return true;
+                }
+                return false;
+            }
+
+            for (const sel of selectors) {
+                try {
+                    const elements = document.querySelectorAll(sel);
+                    for (const el of elements) {
+                        const rect = el.getBoundingClientRect();
+                        if (rect.width > 0 && rect.height > 0) {
+                            if (hasAdblockText(el)) {
+                                enforcementEl = el;
+                                break;
+                            }
+                        }
+                    }
+                    if (enforcementEl) break;
+                } catch(e) {}
+            }
+            
+            if (enforcementEl) {
+                // 1st try: Attempt to find a dismiss/close button and click it
+                // Need to pierce shadow DOM to find close buttons as well
+                let closeBtn = enforcementEl.querySelector('#dismiss-button, .ytp-ad-overlay-close-button, button[aria-label="Close"], button[aria-label="Dismiss"]');
+                if (!closeBtn && enforcementEl.shadowRoot) {
+                     closeBtn = enforcementEl.shadowRoot.querySelector('#dismiss-button, button[aria-label="Close"]');
+                }
+                
+                if (closeBtn && antiAdblockCloseAttempts < 3) {
+                    closeBtn.click();
+                    antiAdblockCloseAttempts++;
+                    // Resume video if it was paused
+                    const vid = document.querySelector('video');
+                    if (vid && vid.paused) vid.play().catch(()=>{});
+                    console.log('[PIP Anywhere] Attempted to dismiss YouTube anti-adblock modal.');
+                    return true;
+                }
+                
+                // If no close button, or we tried too many times (strict block):
+                const disableUntil = localStorage.getItem('pip_yt_adblock_disabled_until');
+                if (!disableUntil || Date.now() > parseInt(disableUntil, 10)) {
+                    // Disable for 1 hour (3600000ms)
+                    localStorage.setItem('pip_yt_adblock_disabled_until', Date.now() + 3600000);
+                    console.log('[PIP Anywhere] YouTube strict block detected. Temporarily disabling ALL adblock features and reloading.');
+                    window.location.reload();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Initialize hideCosmetic based on local storage
+        const disableUntil = localStorage.getItem('pip_yt_adblock_disabled_until');
+        if (disableUntil && Date.now() < parseInt(disableUntil, 10)) {
+            hideCosmetic = false;
+            skipAdsEnabled = false;
+            console.log('[PIP Anywhere] YouTube ad features temporarily disabled to bypass detection.');
+        } else if (disableUntil) {
+            localStorage.removeItem('pip_yt_adblock_disabled_until');
+        }
+
         // Main YouTube ad-blocker loop
         function youtubeAdBlockerLoop() {
-            tryClickSkip();
-            fastForwardAd();
-            hideYouTubeAdElements();
+            if (checkAndBypassAntiAdblock()) return;
+
+            if (skipAdsEnabled) {
+                tryClickSkip();
+                fastForwardAd();
+            }
+            
+            if (hideCosmetic) {
+                hideYouTubeAdElements();
+            }
         }
 
         // Run frequently for responsive ad skipping
@@ -201,9 +307,10 @@
             '[id*="google_ads"]',
             '[id*="ad-slot"]',
             '[id*="ad_slot"]',
-            '[class*="ad-banner"]',
-            '[class*="ad-container"]',
-            '[class*="ad-wrapper"]',
+            '[class^="ad-banner"]', '[class*=" ad-banner"]', '[class*="-ad-banner"]',
+            '[class^="ad-container"]', '[class*=" ad-container"]', '[class*="-ad-container"]',
+            '[class^="ad-wrapper"]', '[class*=" ad-wrapper"]', '[class*="-ad-wrapper"]',
+            '[class^="ad-slot"]', '[class*=" ad-slot"]', '[class*="-ad-slot"]',
             '[class*="adsbygoogle"]',
             'iframe[src*="doubleclick.net"]',
             'iframe[src*="googlesyndication.com"]',
@@ -229,17 +336,19 @@
         });
     }
 
-    // Run cosmetic filter periodically (catches dynamically loaded ads)
-    hideGeneralAds();
-    setInterval(hideGeneralAds, 2000);
-
-    // Observe for new ad elements
-    new MutationObserver(() => {
+    if (!isYouTube) {
+        // Run cosmetic filter periodically (catches dynamically loaded ads)
         hideGeneralAds();
-    }).observe(document.documentElement, {
-        childList: true,
-        subtree: true
-    });
+        setInterval(hideGeneralAds, 2000);
+
+        // Observe for new ad elements
+        new MutationObserver(() => {
+            hideGeneralAds();
+        }).observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+    }
 
     console.log('[PIP Anywhere] Ad Blocker active.');
 })();

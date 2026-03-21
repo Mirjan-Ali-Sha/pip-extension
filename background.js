@@ -30,15 +30,15 @@ const togglePIP = (tab) => {
     });
 };
 
-// Handle Extension Icon Click
-chrome.action.onClicked.addListener(togglePIP);
+// chrome.action.onClicked.addListener is replaced by manifest's default_popup
 
 // Handle Keyboard Shortcut
 chrome.commands.onCommand.addListener((command) => {
-    console.log('[Background] Command received:', command);
     if (command === 'toggle-pip') {
-        chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
-            if (tab) togglePIP(tab);
-        });
+        if (chrome.action && chrome.action.openPopup) {
+            chrome.action.openPopup().catch(err => console.warn(err));
+        } else {
+            console.warn("chrome.action.openPopup is not supported in this Chrome version.");
+        }
     }
 });

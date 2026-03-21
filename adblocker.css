@@ -12,8 +12,6 @@
 .ytp-ad-message-container,
 .ytp-ad-preview-container,
 .ytp-ad-player-overlay-instream-info {
-    display: none !important;
-    visibility: hidden !important;
     height: 0 !important;
     opacity: 0 !important;
     pointer-events: none !important;
@@ -36,7 +34,11 @@ ytd-promoted-sparkles-text-search-renderer,
 ytd-merch-shelf-renderer,
 .ytd-merch-shelf-renderer,
 tp-yt-paper-dialog:has(#mealbar-promo-renderer) {
-    display: none !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 /* ─── General Ad Elements (All Sites) ──────────────────────────── */
@@ -54,10 +56,18 @@ ins.adsbygoogle,
 }
 
 /* Common ad containers */
-[class*="ad-banner"],
-[class*="ad-container"],
-[class*="ad-wrapper"],
-[class*="ad-slot"],
+[class^="ad-banner"],
+[class*=" ad-banner"],
+[class*="-ad-banner"],
+[class^="ad-container"],
+[class*=" ad-container"],
+[class*="-ad-container"],
+[class^="ad-wrapper"],
+[class*=" ad-wrapper"],
+[class*="-ad-wrapper"],
+[class^="ad-slot"],
+[class*=" ad-slot"],
+[class*="-ad-slot"],
 .ad-placeholder,
 .advertisement,
 .sponsored-content,

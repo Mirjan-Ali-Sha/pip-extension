@@ -13,6 +13,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -30,6 +34,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -47,6 +55,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -64,6 +76,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -81,6 +97,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -97,6 +117,10 @@
                 "image",
                 "xmlhttprequest",
                 "sub_frame"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -110,6 +134,10 @@
             "urlFilter": "||connect.facebook.net/en_US/fbevents.js",
             "resourceTypes": [
                 "script"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -127,6 +155,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -144,6 +176,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -161,6 +197,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -178,6 +218,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -195,6 +239,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -212,6 +260,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -229,6 +281,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -246,6 +302,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -263,6 +323,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -280,6 +344,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -295,6 +363,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -310,6 +382,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -325,6 +401,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -340,6 +420,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -355,6 +439,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -371,6 +459,10 @@
                 "image",
                 "xmlhttprequest",
                 "sub_frame"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -386,6 +478,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -401,6 +497,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -416,6 +516,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -433,6 +537,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -448,6 +556,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -463,6 +575,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -478,6 +594,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -494,6 +614,10 @@
                 "image",
                 "xmlhttprequest",
                 "sub_frame"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -510,6 +634,10 @@
                 "image",
                 "xmlhttprequest",
                 "sub_frame"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -527,6 +655,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -544,6 +676,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -561,6 +697,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -578,6 +718,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -595,6 +739,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -612,6 +760,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -628,6 +780,10 @@
                 "image",
                 "xmlhttprequest",
                 "sub_frame"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -644,6 +800,10 @@
                 "image",
                 "xmlhttprequest",
                 "sub_frame"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -660,6 +820,10 @@
                 "image",
                 "xmlhttprequest",
                 "sub_frame"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -676,6 +840,10 @@
                 "image",
                 "xmlhttprequest",
                 "sub_frame"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -693,6 +861,10 @@
                 "xmlhttprequest",
                 "sub_frame",
                 "media"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -709,6 +881,10 @@
                 "image",
                 "xmlhttprequest",
                 "sub_frame"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -725,6 +901,10 @@
                 "image",
                 "xmlhttprequest",
                 "sub_frame"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -740,6 +920,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -755,6 +939,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -770,6 +958,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -785,6 +977,10 @@
                 "script",
                 "image",
                 "xmlhttprequest"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     },
@@ -798,6 +994,10 @@
             "urlFilter": "||segment.com/analytics.js",
             "resourceTypes": [
                 "script"
+            ],
+            "excludedInitiatorDomains": [
+                "youtube.com",
+                "www.youtube.com"
             ]
         }
     }
