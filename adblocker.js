@@ -26,6 +26,9 @@
          * Returns true if a skip button was found and clicked.
          */
         function tryClickSkip() {
+            const player = document.querySelector('.html5-video-player');
+            if (!player) return false;
+
             const skipSelectors = [
                 '.ytp-skip-ad-button',
                 '.ytp-ad-skip-button',
@@ -40,7 +43,7 @@
             ];
 
             for (const sel of skipSelectors) {
-                const buttons = document.querySelectorAll(sel);
+                const buttons = player.querySelectorAll(sel);
                 for (const btn of buttons) {
                     if (btn && btn.offsetParent !== null) {
                         btn.click();
@@ -50,7 +53,7 @@
             }
             
             // Text-based fallback for dynamically obfuscated buttons
-            const allButtons = document.querySelectorAll('button, .ytp-ad-text');
+            const allButtons = player.querySelectorAll('button, .ytp-ad-text');
             for (const btn of allButtons) {
                 if (btn && btn.offsetParent !== null) {
                     const text = btn.innerText.toLowerCase();
@@ -78,7 +81,10 @@
          * Fast-forward through unskippable ads.
          */
         function fastForwardAd() {
-            const video = document.querySelector('video');
+            const player = document.querySelector('.html5-video-player');
+            if (!player) return;
+
+            const video = player.querySelector('video');
             if (!video) return;
 
             if (isAdPlaying()) {
@@ -108,10 +114,7 @@
                     savedVolume = null;
                 }
                 if (adSpeedApplied) {
-                    const vid = document.querySelector('video');
-                    if (vid) {
-                        try { vid.playbackRate = 1; } catch (e) { /* ignore */ }
-                    }
+                    try { video.playbackRate = 1; } catch (e) { /* ignore */ }
                     adSpeedApplied = false;
                 }
             }
@@ -224,11 +227,15 @@
                 }
                 
                 // If no close button, or we tried too many times (strict block):
-                const disableUntil = localStorage.getItem('pip_yt_adblock_disabled_until');
+                const urlParams = new URLSearchParams(window.location.search);
+                const videoId = urlParams.get('v') || 'default';
+                const blockKey = `pip_yt_block_${videoId}`;
+                
+                const disableUntil = localStorage.getItem(blockKey);
                 if (!disableUntil || Date.now() > parseInt(disableUntil, 10)) {
-                    // Disable for 1 hour (3600000ms)
-                    localStorage.setItem('pip_yt_adblock_disabled_until', Date.now() + 3600000);
-                    console.log('[PIP Anywhere] YouTube strict block detected. Temporarily disabling ALL adblock features and reloading.');
+                    // Disable for 10 minutes (600,000ms) for this specific URL
+                    localStorage.setItem(blockKey, Date.now() + 600000);
+                    console.log(`[PIP Anywhere] YouTube strict block detected for video ${videoId}. Temporarily disabling adblock features for 10 mins.`);
                     window.location.reload();
                     return true;
                 }
@@ -236,14 +243,19 @@
             return false;
         }
 
-        // Initialize hideCosmetic based on local storage
-        const disableUntil = localStorage.getItem('pip_yt_adblock_disabled_until');
+        // Initialize based on current video's block status
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoId = urlParams.get('v') || 'default';
+        const blockKey = `pip_yt_block_${videoId}`;
+        const disableUntil = localStorage.getItem(blockKey);
+        
         if (disableUntil && Date.now() < parseInt(disableUntil, 10)) {
             hideCosmetic = false;
             skipAdsEnabled = false;
-            console.log('[PIP Anywhere] YouTube ad features temporarily disabled to bypass detection.');
+            const remaining = Math.round((parseInt(disableUntil, 10) - Date.now()) / 1000 / 60);
+            console.log(`[PIP Anywhere] YouTube ad features disabled for this video for ~${remaining} more minutes.`);
         } else if (disableUntil) {
-            localStorage.removeItem('pip_yt_adblock_disabled_until');
+            localStorage.removeItem(blockKey);
         }
 
         // Main YouTube ad-blocker loop
@@ -336,7 +348,9 @@
         });
     }
 
-    if (!isYouTube) {
+    const isZee5 = window.location.hostname.includes('zee5.com');
+
+    if (!isYouTube && !isZee5) {
         // Run cosmetic filter periodically (catches dynamically loaded ads)
         hideGeneralAds();
         setInterval(hideGeneralAds, 2000);

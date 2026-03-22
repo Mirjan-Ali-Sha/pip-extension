@@ -15,6 +15,16 @@
     const PIP_BUTTON_CLASS = 'pip-anywhere-btn';
     const PIP_ACTIVE_CLASS = 'pip-anywhere-active';
 
+    let onMediaPipIconEnabled = true;
+
+    // Load initial settings safely
+    if (chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get({ onMediaPipIcon: true }, (result) => {
+            onMediaPipIconEnabled = result.onMediaPipIcon;
+            if (!onMediaPipIconEnabled) removeAllButtons();
+        });
+    }
+
     // ─── Video Discovery ──────────────────────────────────────────────
 
     /**
@@ -146,12 +156,7 @@
 
         try {
             await video.requestPictureInPicture();
-            updateButtons(true);
-
-            video.addEventListener('leavepictureinpicture', () => {
-                updateButtons(false);
-            }, { once: true });
-
+            // State update is handled by global listeners now
             return true; // Handled
         } catch (e) {
             console.error('[PIP] Enter failed:', e);
@@ -165,6 +170,7 @@
     // ─── UI Overlay ───────────────────────────────────────────────────
 
     function attachButton(video) {
+        if (!onMediaPipIconEnabled) return;
         if (video.clientWidth < 100) return; // Ignore very small videos
 
         // Find a valid parent that has dimensions (so top: 50% works)
@@ -215,12 +221,38 @@
         // Also capture mousedown to prevent parent click handlers
         btn.onmousedown = (e) => e.stopPropagation();
 
+        // Initial state sync: Highlight if PIP is already active for this video
+        if (document.pictureInPictureElement && (document.pictureInPictureElement === video || document.pictureInPictureElement.dataset.pipId === video.dataset.pipId)) {
+            btn.classList.add(PIP_ACTIVE_CLASS);
+        }
+
         parent.appendChild(btn);
     }
 
-    function updateButtons(active) {
-        document.querySelectorAll(`.${PIP_BUTTON_CLASS}`).forEach(btn => {
+    function updateButtons(active, root = document) {
+        // Query current root
+        root.querySelectorAll(`.${PIP_BUTTON_CLASS}`).forEach(btn => {
             btn.classList.toggle(PIP_ACTIVE_CLASS, active);
+        });
+        
+        // Recurse into shadow roots
+        root.querySelectorAll('*').forEach(el => {
+            if (el.shadowRoot) updateButtons(active, el.shadowRoot);
+        });
+    }
+
+    function removeAllButtons(root = document) {
+        // 1. Remove from current root
+        const buttons = root.querySelectorAll(`.${PIP_BUTTON_CLASS}`);
+        buttons.forEach(btn => btn.remove());
+        
+        // 2. Recursively find and enter shadow roots
+        // Note: querySelectorAll('*') is okay here as this is only called on setting change or init
+        const allElements = root.querySelectorAll('*');
+        allElements.forEach(el => {
+            if (el.shadowRoot) {
+                removeAllButtons(el.shadowRoot);
+            }
         });
     }
 
@@ -283,6 +315,24 @@
             }
         }
     });
+
+    // Listen for real-time settings changes across all frames/tabs
+    if (chrome.storage && chrome.storage.onChanged) {
+        chrome.storage.onChanged.addListener((changes, area) => {
+            if (area === 'local' && changes.onMediaPipIcon) {
+                onMediaPipIconEnabled = changes.onMediaPipIcon.newValue;
+                if (!onMediaPipIconEnabled) {
+                    removeAllButtons();
+                } else {
+                    scan();
+                }
+            }
+        });
+    }
+    
+    // Global PIP event listeners to catch all state changes
+    document.addEventListener('enterpictureinpicture', () => updateButtons(true), true);
+    document.addEventListener('leavepictureinpicture', () => updateButtons(false), true);
 
     // Periodic scan
     function scan() {

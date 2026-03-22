@@ -20,63 +20,66 @@ body {
 .media-list {
     display: flex;
     flex-direction: column;
-    padding: 16px;
-    gap: 12px;
+    padding: 0 12px 12px 12px;
+    gap: 12px; 
     max-height: 480px;
     overflow-y: auto;
 }
 .media-list::-webkit-scrollbar { width: 4px; }
 .media-list::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 4px; }
 
-/* Empty state */
-.empty-state {
-    text-align: center;
-    color: var(--text-secondary);
-    font-size: 14px;
-    padding: 30px 0;
+/* CARDS - Modern Split Design */
+.media-card {
+    background-color: var(--bg-card);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    display: flex;
+    height: 100px; /* Precise height for GMC-like footprint */
 }
 
-/* CARDS */
-.gmc-card {
-    background-color: var(--bg-card);
-    border-radius: 12px;
-    padding: 16px;
+.media-card:hover {
+    background-color: #35363a;
+}
+.media-card:active {
+    transform: scale(0.995);
+}
+
+.card-left {
+    flex: 1;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    justify-content: space-between;
+    min-width: 0;
+    z-index: 1;
+}
+
+.card-right {
+    width: 120px;
+    height: 100%;
     position: relative;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    flex-shrink: 0;
 }
 
-.card-top {
-    display: flex;
-    gap: 16px;
-}
-
-.thumbnail-box {
-    width: 64px;
-    height: 64px;
-    border-radius: 8px;
+.thumbnail-bg {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
     background-size: cover;
     background-position: center;
-    background-color: #35363a;
-    flex-shrink: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    background-repeat: no-repeat;
+    mask-image: linear-gradient(to left, black 60%, transparent); /* Subtle blend to content */
+    -webkit-mask-image: linear-gradient(to left, black 60%, transparent);
 }
 
-.card-info {
-    flex-grow: 1;
+.info-top {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    min-width: 0; 
-}
-
-.info-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
+    gap: 2px;
+    min-width: 0;
 }
 
 .domain-group {
@@ -85,25 +88,13 @@ body {
     gap: 6px;
     color: var(--text-secondary);
     font-size: 11px;
+    margin-bottom: 2px;
 }
 .domain-group img {
     width: 14px;
     height: 14px;
     border-radius: 2px;
 }
-
-.btn-icon-small {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 2px;
-    display: flex;
-    align-items: center;
-    transition: color 0.1s;
-}
-.btn-icon-small:hover { color: var(--text-primary); }
-.btn-icon-small.active { color: var(--accent); }
 
 .media-title {
     font-size: 14px;
@@ -112,87 +103,121 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-bottom: 2px;
-    padding-right: 48px; 
 }
 
 .media-subtitle {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 48px;
+    opacity: 0.8;
 }
 
-/* Massive absolute positioned Play button */
-.play-btn-large {
-    position: absolute;
-    right: 16px;
-    top: 42px; 
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background-color: var(--accent-dark);
-    border: none;
-    color: var(--text-primary);
+/* Redesigned Control Row */
+.control-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    transition: transform 0.1s, background-color 0.1s;
-}
-.play-btn-large:hover { transform: scale(1.05); background-color: #006b99; }
-.play-btn-large:active { transform: scale(0.95); }
-.play-btn-large svg { fill: currentColor; stroke: none; }
-
-/* Progress row */
-.progress-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding-top: 4px;
+    gap: 16px;
+    margin-top: 8px;
 }
 
-.seek-btn {
+.btn-ctrl {
     background: none;
     border: none;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     cursor: pointer;
     padding: 0;
     display: flex;
     align-items: center;
+    opacity: 0.85;
+    transition: transform 0.1s, opacity 0.1s;
 }
-.seek-btn:hover { color: var(--text-primary); }
+.btn-ctrl:hover { opacity: 1; transform: scale(1.1); }
+.btn-ctrl:active { transform: scale(0.95); }
+.btn-ctrl svg { fill: currentColor; }
 
-.progress-track {
-    flex-grow: 1;
-    height: 4px;
+/* Active/Clicked Button state (as seen in screenshot) */
+.btn-ctrl.active-pip {
+    background-color: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 4px 6px;
+    opacity: 1;
+}
+
+.divider-vertical {
+    width: 1px;
+    height: 14px;
+    background-color: var(--divider);
+    opacity: 0.5;
+    margin: 0 4px;
+}
+
+/* Dismiss (X) Button */
+.btn-dismiss {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 22px; height: 22px;
+    background-color: rgba(0,0,0,0.5);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background-color 0.2s;
+    z-index: 5;
+}
+.media-card:hover .btn-dismiss { opacity: 1; }
+.btn-dismiss:hover { background-color: rgba(0,0,0,0.8); }
+
+/* Interactive Progress Bar (Bottom) */
+.progress-bar-container {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 10px; /* Large activation area as requested */
+    z-index: 10;
+    cursor: pointer;
+    background-color: transparent;
+    display: flex;
+    align-items: flex-end; /* Keep the actual line at the very bottom */
+}
+.progress-bar-interactive {
+    width: 100%;
+    height: 2px; /* Thin by default */
+    background-color: rgba(255,255,255,0.15);
+    transition: height 0.2s ease;
+    overflow: hidden;
+}
+.progress-bar-container:hover .progress-bar-interactive {
+    height: 6px; /* Expands on hover */
+}
+.progress-fill-bold {
+    height: 100%;
+    background-color: #00a8ff; /* Vibrant Blue for clarity */
+    box-shadow: 0 0 6px rgba(0,168,255,0.3);
+    transition: width 0.1s linear;
+}
+
+/* Mini Progress Bar (Bottom of card) */
+.progress-bar-mini {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
     background-color: rgba(255,255,255,0.1);
-    border-radius: 2px;
-    position: relative;
+    z-index: 2;
 }
-
-.progress-fill {
-    position: absolute;
-    top: 0; left: 0; bottom: 0;
+.progress-fill-mini {
+    height: 100%;
     background-color: var(--accent);
-    border-radius: 2px;
-}
-.progress-knob {
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 4px;
-    height: 12px;
-    background-color: var(--accent);
-    border-radius: 2px;
+    transition: width 0.3s ease;
 }
 
 /* Bottom Section */
 .bottom-section {
-    padding: 0 16px 16px 16px;
+    padding: 4px 16px 16px 16px;
     display: flex;
     flex-direction: column;
 }
@@ -201,7 +226,7 @@ body {
     height: 1px;
     background-color: var(--divider);
     width: 100%;
-    margin: 8px 0;
+    margin: 4px 0;
 }
 
 .settings-row {

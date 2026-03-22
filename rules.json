@@ -1,5 +1,23 @@
 [
     {
+        "id": 10000,
+        "priority": 2,
+        "action": { "type": "allow" },
+        "condition": {
+            "urlFilter": "||zee5.com",
+            "resourceTypes": ["main_frame", "sub_frame", "script", "xmlhttprequest", "media", "image"]
+        }
+    },
+    {
+        "id": 10001,
+        "priority": 2,
+        "action": { "type": "allow" },
+        "condition": {
+            "urlFilter": "||z5apical.com",
+            "resourceTypes": ["main_frame", "sub_frame", "script", "xmlhttprequest", "media", "image"]
+        }
+    },
+    {
         "id": 1,
         "priority": 1,
         "action": {
@@ -16,7 +34,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -37,7 +57,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -58,7 +80,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -79,7 +103,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -100,7 +126,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -120,7 +148,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -137,7 +167,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -158,7 +190,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -179,7 +213,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -200,7 +236,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -221,7 +259,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -242,7 +282,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -263,7 +305,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -284,7 +328,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -305,7 +351,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -326,7 +374,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -347,7 +397,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -366,7 +418,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -385,7 +439,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -404,7 +460,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -423,7 +481,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -442,7 +502,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -462,7 +524,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -481,7 +545,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -500,7 +566,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -519,7 +587,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -540,7 +610,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -559,7 +631,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -578,7 +652,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -597,7 +673,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -617,7 +695,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -637,7 +717,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -658,7 +740,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -679,7 +763,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -700,7 +786,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -721,7 +809,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -742,7 +832,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -763,7 +855,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -783,7 +877,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -803,7 +899,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -823,7 +921,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -843,7 +943,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -864,7 +966,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -884,7 +988,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -904,7 +1010,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -923,7 +1031,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -942,7 +1052,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -961,7 +1073,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -980,7 +1094,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     },
@@ -997,7 +1113,9 @@
             ],
             "excludedInitiatorDomains": [
                 "youtube.com",
-                "www.youtube.com"
+                "www.youtube.com",
+                "zee5.com",
+                "www.zee5.com"
             ]
         }
     }

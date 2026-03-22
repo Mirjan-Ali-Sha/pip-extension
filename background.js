@@ -9,18 +9,20 @@
 const togglePIP = (tab) => {
     if (!tab?.id) return;
 
-    // Check if we can script this tab
-    if (tab.url?.startsWith('chrome://') || tab.url?.startsWith('edge://')) return;
+    // Check if we can script this tab (skip internal browser pages across all Chromium dialects)
+    const url = tab.url || '';
+    if (url.startsWith('chrome://') || url.startsWith('edge://') || 
+        url.startsWith('brave://') || url.startsWith('about:') || 
+        url.startsWith('view-source:')) return;
 
     // Broadcast to ALL frames in the tab.
     // Each frame decides if it has a video worth toggling.
-    // This removes complex arbitration that might fail due to timing or cross-origin issues.
     chrome.tabs.sendMessage(tab.id, { type: 'toggle-pip' }).catch(() => {
-        // If message fails (content script not ready?), inject it dynamically
-        // This handles cases where extension was just installed/reloaded but page wasn't
+        // If message fails (content script not ready/extension reloaded), inject scripts dynamically.
+        // We inject both content.js (PIP) and adblocker.js so they start working immediately.
         chrome.scripting.executeScript({
             target: { tabId: tab.id, allFrames: true },
-            files: ['content.js']
+            files: ['content.js', 'adblocker.js']
         }).then(() => {
             // Retry toggle after injection
             setTimeout(() => {
@@ -30,15 +32,17 @@ const togglePIP = (tab) => {
     });
 };
 
-// chrome.action.onClicked.addListener is replaced by manifest's default_popup
-
 // Handle Keyboard Shortcut
 chrome.commands.onCommand.addListener((command) => {
     if (command === 'toggle-pip') {
+        // Programmatically open the popup (this ensures Alt+P always shows the Media Hub)
         if (chrome.action && chrome.action.openPopup) {
-            chrome.action.openPopup().catch(err => console.warn(err));
+            chrome.action.openPopup().catch(err => console.warn('openPopup failed:', err));
         } else {
-            console.warn("chrome.action.openPopup is not supported in this Chrome version.");
+            // Fallback for older browsers or if openPopup fails: toggle PIP directly in active tab
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs[0]) togglePIP(tabs[0]);
+            });
         }
     }
 });
