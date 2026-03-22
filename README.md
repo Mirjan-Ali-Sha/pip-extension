@@ -1,69 +1,50 @@
 # PIP Anywhere
 
-**PIP Anywhere** is a powerful and lightweight Chrome extension that enables Picture-in-Picture (PIP) mode on almost any video on the web, **plus a built-in ad blocker**. Whether it's YouTube, Netflix, Hotstar, or a custom video player, PIP Anywhere liberates your video from the browser tab, allowing you to watch while you work, browse, or multi-task — all with cleaner, ad-free pages.
+**PIP Anywhere** is a professional-grade Chrome extension that delivers a seamless Picture-in-Picture (PIP) experience on any website, paired with a sophisticated multi-layered ad blocker. Whether you're on YouTube, Netflix, Zee5, or a niche video player, PIP Anywhere keeps your viewing area clean and your video floating while you work.
 
-## Key Features
+## 🚀 Key Features
 
-*   **Universal PIP**: Works on the vast majority of websites containing HTML5 videos.
-*   **Built-in Ad Blocker**: Three-layer ad blocking:
-    *   **Network-level**: Blocks 50+ ad domains at the network layer (like Brave Shields)
-    *   **YouTube Ads**: Auto-skips skippable ads, fast-forwards unskippable ads, hides overlays
-    *   **Cosmetic Filtering**: Hides ad containers on all websites via CSS
-*   **Smart Detection**: Automatically finds the most relevant video on the page, even inside iframes or Shadow DOMs.
-*   **Overlay Button**: Adds a convenient, unobtrusive button to compatible video players.
-*   **Keyboard Shortcut**: Toggle PIP instantly with `Alt + P`.
-*   **Draggable & Resizable**: Uses the browser's native PIP window, which can be moved and resized freely.
-*   **Performance Friendly**: Lightweight script that doesn't drain your resources.
-*   **Zero Data Collection**: Runs entirely locally. No analytics, no tracking.
+*   **Universal Picture-in-Picture**: Works on virtually any HTML5 video, including those inside IFrames and deep Shadow DOMs.
+*   **Advanced Ad Blocking**:
+    *   **Network Protection**: Blocks 50+ known ad-serving domains (Brave-style protection).
+    *   **YouTube Specific**: Auto-skips skippable ads, fast-forwards unskippable ads (16x speed), and suppresses the "Ad blocker violated terms" warning.
+    *   **Cosmetic Filtering**: Hides ad banners and video overlays on all supported websites.
+*   **Customizable PIP Icon**:
+    *   **On-Video Toggle**: A convenient floating button appears when you hover over a video.
+    *   **Settings Persistence**: Use the extension popup to enable or disable the on-video icon globally. 
+    *   **Real-time Sync**: Toggling settings in the popup updates all open tabs and frames instantly.
+*   **Intelligent Highlighting**: The floating icon automatically highlights (with a vibrant purple gradient) when Picture-in-Picture is active.
+*   **Keyboard Efficiency**: Toggle PIP instantly with `Alt + P`.
 
-## Installation
+## 🛠️ Usage
 
-Since this extension is currently in development/unpacked state:
-
-1.  Open Chrome (or Edge/Brave) and navigate to `chrome://extensions`.
-2.  Enable **Developer mode** (usually a toggle in the top-right corner).
-3.  Click **Load unpacked**.
-4.  Select the `pip-extension` folder.
-5.  The extension is now installed and active!
-
-## Usage
-
-### Method 1: Overlay Button
-1.  Navigate to a page with a video (e.g., YouTube).
-2.  Hover your mouse over the video player.
-3.  Click the **PIP** icon that appears on the right side of the video (approx. 15% from the top).
+### Method 1: Floating Icon
+1. Hover over any video.
+2. Click the **PIP icon** (it appears near the top-right by default).
+3. The icon will glow when PIP is active. Click it again to return the video to the tab.
 
 ### Method 2: Keyboard Shortcut
-1.  While on a page with a video, press `Alt + P`.
-2.  The "best" video on the page (usually the largest or currently playing one) will pop out.
+1. Press `Alt + P` on any tab with a video.
+2. The extension automatically picks the "best" video on the page (usually the largest playing one).
 
-### Method 3: Toolbar Icon
-1.  Pin the extension icon to your browser toolbar.
-2.  Click the icon to toggle PIP for the current tab.
+### Method 3: Extension Popup (Media Hub)
+1. Click the extension icon in your toolbar to see all active media across all tabs.
+2. Controls (Play, Pause, Rewind, Seek) and a per-video PIP button are available.
+3. Use the **On-media PIP Icon** toggle at the bottom to show/hide the floating button on videos.
 
-## Troubleshooting
+## 🔧 Technical Logic & Bypasses
 
-*   **Button not appearing?**
-    *   Try moving your mouse over the video.
-    *   Ensure the video is actually playing or has loaded.
-    *   Refresh the page.
-*   **PIP blocked?**
-    *   Some sites aggressively block PIP. This extension tries to bypass standard restrictions, but DRM-heavy sites might still have limitations.
-    *   Clicking "Play" *before* trying to enter PIP often resolves issues.
-*   **Keyboard Shortcut (Alt+P) not working?**
-    *   Go to `chrome://extensions/shortcuts` in your browser.
-    *   Find "PIP Anywhere".
-    *   Ensure `Alt+P` is set and not conflicting with another extension.
-    *   You can click the pencil icon to reassign it to a different key combo if needed.
+*   **DRM & Restrictions**: PIP Anywhere aggressively removes `disablePictureInPicture` attributes and overrides JavaScript blocks that sites use to prevent PIP.
+*   **YouTube Bypass**: Uses a "Stealth Mode" for ad blocking on YouTube (using opacity and pointer-events) to avoid detection by YouTube's anti-adblock scripts.
+*   **Shadow DOM Discovery**: Uses recursive tree-walking to find video elements buried inside isolated shadow roots (common on modern streaming platforms).
 
-## Privacy Policy
+## 🔒 Privacy & Performance
 
-**PIP Anywhere respects your privacy.**
-*   This extension runs entirely locally on your device.
-*   It does **not** collect, store, or transmit any user data, browsing history, or video usage statistics.
-*   Permissions are only used to detect video elements on the pages you visit.
+*   **Local Processing**: All logic runs on your machine. No cloud processing or data collection.
+*   **Resource Efficient**: Ad blocking is handled via `declarativeNetRequest` (Manifest V3), which is extremely fast and light on memory.
+*   **Zero Analytics**: We don't track what you watch or where you browse.
 
-## Credits
+## 👨‍💻 Credits
 
 **Author**: Mirjan Ali Sha  
-*Concept & Development*
+*Concept, Development & Advanced Adblock Logic*
