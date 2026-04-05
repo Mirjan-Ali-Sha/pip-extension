@@ -2,6 +2,12 @@
 /* @author Mirjan Ali Sha <mastools.help@gmail.com> */
 
 /* ─── Overlay PIP Button ──────────────────────────────────────── */
+html[data-pip-hide-icon="true"] .pip-anywhere-btn {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 .pip-anywhere-btn {
     position: absolute;
     top: 15% !important;
@@ -93,4 +99,62 @@
 .pip-anywhere-toast-show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+}
+
+/* ─── Big Screen Mode (Beta) ─────────────────────────── */
+html[data-pip-big-screen="true"] {
+    overflow-x: hidden !important;
+}
+
+/* DOM Placeholder to push content down (guarantees title visibility) */
+#pip-anywhere-spacer {
+    width: 100% !important;
+    height: 85vh !important;
+    display: block !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Force ancestors to be non-containing blocks */
+.pip-anywhere-ancestor-flatten {
+    position: static !important;
+    transform: none !important;
+    filter: none !important;
+    perspective: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* High-priority breakout positioned over the spacer */
+.pip-anywhere-big-screen-active {
+    position: absolute !important;
+    top: 60px !important; /* Offset for the header */
+    left: 0 !important;
+    width: 100vw !important;
+    height: 85vh !important;
+    z-index: 1000000 !important;
+    margin: 0 !important;
+    background: #000 !important;
+    display: block !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+/* Propagate sizing to video stream */
+.pip-anywhere-big-screen-active video,
+html[data-pip-big-screen="true"] video,
+html[data-pip-big-screen="true"] .video-stream,
+html[data-pip-big-screen="true"] .html5-main-video {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    background: #000 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    top: 0 !important;
+    left: 0 !important;
 }

@@ -13,6 +13,24 @@
     if (window.__pipAdBlockerInjected) return;
     window.__pipAdBlockerInjected = true;
 
+    // ─── Domain-level Ad Blocker State Tracking ─────────────────────
+    let isUserAdblockEnabled = true;
+    const currentHost = window.location.hostname.replace('www.', '');
+
+    if (chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get([`adblockEnabled_${currentHost}`], (result) => {
+            if (result[`adblockEnabled_${currentHost}`] !== undefined) {
+                isUserAdblockEnabled = result[`adblockEnabled_${currentHost}`];
+            }
+        });
+
+        chrome.storage.onChanged.addListener((changes, area) => {
+            if (area === 'local' && changes[`adblockEnabled_${currentHost}`]) {
+                isUserAdblockEnabled = changes[`adblockEnabled_${currentHost}`].newValue;
+            }
+        });
+    }
+
     const isYouTube = window.location.hostname.includes('youtube.com');
 
     // ─── YouTube Ad Skipper ───────────────────────────────────────────
@@ -164,6 +182,21 @@
         let skipAdsEnabled = true;
         let antiAdblockCloseAttempts = 0;
 
+        // Force reset YouTube-specific bans on toggle change (if the user manually overrides)
+        if (chrome.storage && chrome.storage.onChanged) {
+            chrome.storage.onChanged.addListener((changes, area) => {
+                if (area === 'local' && changes[`adblockEnabled_${currentHost}`]) {
+                    if (changes[`adblockEnabled_${currentHost}`].newValue === true) {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const videoId = urlParams.get('v') || 'default';
+                        localStorage.removeItem(`pip_yt_block_${videoId}`);
+                        skipAdsEnabled = true;
+                        hideCosmetic = true;
+                    }
+                }
+            });
+        }
+
         /**
          * Detect anti-adblock enforcement and disable cosmetic filters if needed.
          */
@@ -260,6 +293,7 @@
 
         // Main YouTube ad-blocker loop
         function youtubeAdBlockerLoop() {
+            if (!isUserAdblockEnabled) return;
             if (checkAndBypassAntiAdblock()) return;
 
             if (skipAdsEnabled) {
@@ -311,9 +345,117 @@
         console.log('[PIP Anywhere] YouTube Ad Skipper active.');
     }
 
+    // ─── Hotstar Ad Skipper ───────────────────────────────────────────
+
+    const isHotstar = window.location.hostname.includes('hotstar.com');
+
+    if (isHotstar) {
+        let savedVolume = null;
+
+        function hotstarAdBlockerLoop() {
+            if (!isUserAdblockEnabled) return;
+            // 1. Specific Selectors only (No heavy DOM lookups like innerText)
+            const skipSelectors = [
+                '.ad-skip-btn',
+                '.skip-button',
+                '.skip-btn',
+                '[aria-label*="skip" i]',
+                '[aria-label*="Skip Ad" i]',
+                '[class*="skip-button" i]',
+                '[class*="SkipBtn" i]',
+                'button.ad-skip'
+            ];
+
+            let isAdPlaying = false;
+
+            // 1. Efficient Text Check (No Reflow unless matched)
+            const elements = document.querySelectorAll('span, div, button, a');
+            for (let i = 0; i < elements.length; i++) {
+                const el = elements[i];
+                if (el.childElementCount > 2) continue; // Skip wrappers
+
+                const txt = (el.textContent || '').trim().toLowerCase();
+                if (!txt || txt.length > 25) continue; // Ignore empty or long texts
+
+                const isSkipBtn = (txt === 'skip ad' || txt === 'skip ads' || txt === 'skip');
+                const isAdBadge = (txt === 'advertisement' || txt === 'ad' || txt.startsWith('ad 1 of') || txt.startsWith('ad 2 of'));
+
+                if (isSkipBtn) {
+                    if (el.offsetWidth > 0 || el.offsetHeight > 0) {
+                        el.click();
+                        isAdPlaying = true;
+                    }
+                } else if (isAdBadge) {
+                    if (el.offsetWidth > 0 || el.offsetHeight > 0) {
+                        isAdPlaying = true;
+                    }
+                }
+            }
+
+            // 2. Attempt to click skip buttons (Attribute Fallback)
+            if (!isAdPlaying) {
+                for (const sel of skipSelectors) {
+                    const buttons = document.querySelectorAll(sel);
+                    for (const btn of buttons) {
+                        if (btn && btn.offsetParent !== null) {
+                            btn.click();
+                            isAdPlaying = true;
+                        }
+                    }
+                }
+            }
+
+            const video = document.querySelector('video');
+            if (!video) return;
+
+            // 3. Check Ad Indicators with specific selectors only
+            if (!isAdPlaying) {
+                const adIndicators = document.querySelectorAll(
+                    '[class*="ad-container" i], ' +
+                    '[class*="AdBadge" i], ' +
+                    '[class*="advert-badge" i], ' +
+                    '[class*="advertisement" i], ' +
+                    '[data-testid="bbtype-video" i]'
+                );
+                for (const ind of adIndicators) {
+                    if (ind && ind.offsetParent !== null) {
+                        isAdPlaying = true;
+                        break;
+                    }
+                }
+            }
+
+            // 4. Fast-forward if ad is playing
+            if (isAdPlaying) {
+                if (savedVolume === null && !video.muted) {
+                    savedVolume = video.volume;
+                    video.muted = true;
+                }
+                try { video.playbackRate = 16; } catch (e) {}
+                try { video.currentTime += 2; } catch (e) {} // Extra boost for SSAI ad segments
+            } else {
+                if (savedVolume !== null) {
+                    video.muted = false;
+                    video.volume = savedVolume;
+                    savedVolume = null;
+                }
+                try { 
+                    if (video.playbackRate > 2) video.playbackRate = 1; 
+                } catch (e) {}
+            }
+        }
+
+        // Run interval only (no heavy body mutation observer)
+        setInterval(hotstarAdBlockerLoop, 600);
+
+        console.log('[PIP Anywhere] Hotstar Ad Skipper active (Lightweight).');
+    }
+
     // ─── General Cosmetic Ad Filter (All Sites) ──────────────────────
 
     function hideGeneralAds() {
+        if (!isUserAdblockEnabled) return;
+        
         const adSelectors = [
             'ins.adsbygoogle',
             '[id*="google_ads"]',
@@ -324,6 +466,7 @@
             '[class^="ad-wrapper"]', '[class*=" ad-wrapper"]', '[class*="-ad-wrapper"]',
             '[class^="ad-slot"]', '[class*=" ad-slot"]', '[class*="-ad-slot"]',
             '[class*="adsbygoogle"]',
+            '[data-testid="bbtype-video"]',
             'iframe[src*="doubleclick.net"]',
             'iframe[src*="googlesyndication.com"]',
             'iframe[src*="googleadservices.com"]',
@@ -350,7 +493,7 @@
 
     const isZee5 = window.location.hostname.includes('zee5.com');
 
-    if (!isYouTube && !isZee5) {
+    if (!isYouTube && !isZee5 && !isHotstar) {
         // Run cosmetic filter periodically (catches dynamically loaded ads)
         hideGeneralAds();
         setInterval(hideGeneralAds, 2000);

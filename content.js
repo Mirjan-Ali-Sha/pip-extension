@@ -16,12 +16,19 @@
     const PIP_ACTIVE_CLASS = 'pip-anywhere-active';
 
     let onMediaPipIconEnabled = true;
+    let bigScreenModeEnabled = false;
 
     // Load initial settings safely
     if (chrome.storage && chrome.storage.local) {
-        chrome.storage.local.get({ onMediaPipIcon: true }, (result) => {
+        chrome.storage.local.get({ onMediaPipIcon: true, bigScreenMode: false }, (result) => {
             onMediaPipIconEnabled = result.onMediaPipIcon;
-            if (!onMediaPipIconEnabled) removeAllButtons();
+            bigScreenModeEnabled = result.bigScreenMode;
+            if (!onMediaPipIconEnabled) {
+                removeAllButtons();
+            } else {
+                document.documentElement.removeAttribute('data-pip-hide-icon');
+            }
+            syncBigScreenMode();
         });
     }
 
@@ -241,19 +248,132 @@
         });
     }
 
-    function removeAllButtons(root = document) {
-        // 1. Remove from current root
-        const buttons = root.querySelectorAll(`.${PIP_BUTTON_CLASS}`);
-        buttons.forEach(btn => btn.remove());
+    function removeAllButtons() {
+        // Unfailingly hide via CSS global flag
+        document.documentElement.setAttribute('data-pip-hide-icon', 'true');
         
-        // 2. Recursively find and enter shadow roots
-        // Note: querySelectorAll('*') is okay here as this is only called on setting change or init
-        const allElements = root.querySelectorAll('*');
-        allElements.forEach(el => {
-            if (el.shadowRoot) {
-                removeAllButtons(el.shadowRoot);
+        // Also cleanly remove from standard dom and shadow roots if accessible
+        try {
+            document.querySelectorAll(`.${PIP_BUTTON_CLASS}`).forEach(btn => btn.remove());
+            document.querySelectorAll('*').forEach(el => {
+                if (el.shadowRoot) {
+                    el.shadowRoot.querySelectorAll(`.${PIP_BUTTON_CLASS}`).forEach(btn => btn.remove());
+                }
+            });
+        } catch (e) {
+            console.warn('[PIP Anywhere] Soft warning: Could not traverse all shadow roots to remove nodes. CSS hiding applied as fallback.');
+        }
+    }
+
+    const BIG_SCREEN_CONTAINER_CLASS = 'pip-anywhere-big-screen-active';
+    const BIG_SCREEN_COLUMN_CLASS = 'pip-anywhere-column-flow';
+    const INCLUDED_BIG_SCREEN_DOMAINS = [
+        'zee5.com'
+    ];
+
+    function syncBigScreenMode() {
+        const hostname = location.hostname.toLowerCase();
+        if (!INCLUDED_BIG_SCREEN_DOMAINS.some(d => hostname.includes(d))) return;
+
+        const isYT = hostname.includes('youtube.com');
+        const isZee = hostname.includes('zee5.com');
+        
+        if (!bigScreenModeEnabled) {
+            document.documentElement.removeAttribute('data-pip-big-screen');
+            document.documentElement.style.removeProperty('padding-top');
+            
+            document.querySelectorAll(`.${BIG_SCREEN_CONTAINER_CLASS}`).forEach(el => {
+                el.classList.remove(BIG_SCREEN_CONTAINER_CLASS);
+                const video = el.querySelector('video');
+                if (video) {
+                    video.style.removeProperty('width');
+                    video.style.removeProperty('height');
+                }
+            });
+            document.querySelectorAll('.pip-anywhere-ancestor-flatten').forEach(el => {
+                el.classList.remove('pip-anywhere-ancestor-flatten');
+            });
+            const spacer = document.getElementById('pip-anywhere-spacer');
+            if (spacer) spacer.remove();
+            return;
+        }
+
+        // 1. Site-specific: Trigger native theater mode or re-renders
+        if (isYT || isZee) {
+            if (!document.documentElement.hasAttribute('data-pip-big-screen')) {
+                if (isYT) {
+                    const watch = document.querySelector('ytd-watch-flexy');
+                    if (watch && !watch.hasAttribute('theater')) {
+                        const btn = document.querySelector('.ytp-size-button');
+                        if (btn) btn.click();
+                    }
+                }
+                // All major platforms need time to re-render
+                [100, 300, 600, 1000].forEach(delay => {
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), delay);
+                });
             }
-        });
+            document.documentElement.setAttribute('data-pip-big-screen', 'true');
+            if (isYT) return; // YouTube handles the rest via Theater Mode
+        }
+
+        const video = findBestVideo();
+        if (!video) return;
+
+        // 2. Identify best player container
+        let container = video.parentElement;
+        let bestContainer = container;
+        let temp = container;
+        for (let i = 0; i < 8; i++) {
+            if (!temp || temp === document.body) break;
+            const id = (temp.id || '').toLowerCase();
+            const cls = (temp.className || '').toLowerCase();
+            if (id.includes('player') || cls.includes('player') || id.includes('video-player') || id.includes('zee')) {
+                bestContainer = temp;
+                break; 
+            }
+            if (temp.clientHeight > 100) bestContainer = temp;
+            temp = temp.parentElement;
+        }
+
+        if (bestContainer) {
+            document.documentElement.setAttribute('data-pip-big-screen', 'true');
+            bestContainer.classList.add(BIG_SCREEN_CONTAINER_CLASS);
+            
+            // 3. Propagate "column flow" to parents smoothly
+            let layoutParent = bestContainer.parentElement;
+            for (let i = 0; i < 12; i++) {
+                if (!layoutParent || layoutParent === document.documentElement) break;
+                const style = getComputedStyle(layoutParent);
+                if (style.display.includes('flex') || style.display.includes('grid')) {
+                    layoutParent.classList.add(BIG_SCREEN_COLUMN_CLASS);
+                }
+                layoutParent = layoutParent.parentElement;
+            }
+
+            video.style.setProperty('width', '100%', 'important');
+            video.style.setProperty('height', '100%', 'important');
+
+            // 4. Flatten ancestors to allow absolute positioning relative to body
+            let p = bestContainer.parentElement;
+            while (p && p !== document.body) {
+                p.classList.add('pip-anywhere-ancestor-flatten');
+                p = p.parentElement;
+            }
+
+            // 5. Inject a physical placeholder to push content down (guaranteed visibility of titles)
+            if (!document.getElementById('pip-anywhere-spacer')) {
+                const spacer = document.createElement('div');
+                spacer.id = 'pip-anywhere-spacer';
+                // Find a good place to insert (after header)
+                const header = document.querySelector('header') || document.body.firstChild;
+                if (header) {
+                    header.after(spacer);
+                } else {
+                    document.body.prepend(spacer);
+                }
+            }
+        }
     }
 
     function showToast(msg) {
@@ -319,12 +439,19 @@
     // Listen for real-time settings changes across all frames/tabs
     if (chrome.storage && chrome.storage.onChanged) {
         chrome.storage.onChanged.addListener((changes, area) => {
-            if (area === 'local' && changes.onMediaPipIcon) {
-                onMediaPipIconEnabled = changes.onMediaPipIcon.newValue;
-                if (!onMediaPipIconEnabled) {
-                    removeAllButtons();
-                } else {
-                    scan();
+            if (area === 'local') {
+                if (changes.onMediaPipIcon) {
+                    onMediaPipIconEnabled = changes.onMediaPipIcon.newValue;
+                    if (!onMediaPipIconEnabled) {
+                        removeAllButtons();
+                    } else {
+                        document.documentElement.removeAttribute('data-pip-hide-icon');
+                        scan();
+                    }
+                }
+                if (changes.bigScreenMode) {
+                    bigScreenModeEnabled = changes.bigScreenMode.newValue;
+                    syncBigScreenMode();
                 }
             }
         });
@@ -341,6 +468,7 @@
             enablePIP(v);
             attachButton(v);
         });
+        syncBigScreenMode();
     }
 
     scan();

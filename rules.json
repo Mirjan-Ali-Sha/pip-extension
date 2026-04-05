@@ -1118,5 +1118,31 @@
                 "www.zee5.com"
             ]
         }
+    },
+    {
+        "id": 9001,
+        "priority": 2,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "/midroll",
+            "initiatorDomains": [
+                "hotstar.com"
+            ]
+        }
+    },
+    {
+        "id": 9002,
+        "priority": 2,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "/preroll",
+            "initiatorDomains": [
+                "hotstar.com"
+            ]
+        }
     }
 ]

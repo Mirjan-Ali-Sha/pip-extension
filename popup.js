@@ -10,24 +10,101 @@ let allVideosCache = [];
 let lastInteractionTime = 0; // Throttles polling during user action
 
 const togglePipIcon = document.getElementById('togglePipIcon');
+const toggleBigScreen = document.getElementById('toggleBigScreen');
+const toggleAdBlocker = document.getElementById('toggleAdBlocker');
+const adblockerRow = document.getElementById('adblockerRow');
+const adblockerLabel = document.getElementById('adblockerLabel');
+
+let currentTabHostname = '';
 
 // Load settings safely
 if (chrome.storage && chrome.storage.local) {
-    chrome.storage.local.get({ onMediaPipIcon: true }, (result) => {
+    chrome.storage.local.get({ onMediaPipIcon: true, bigScreenMode: false }, (result) => {
         if (togglePipIcon) togglePipIcon.checked = result.onMediaPipIcon;
+        if (toggleBigScreen) toggleBigScreen.checked = result.bigScreenMode;
     });
 }
 
-// Handle toggle changes safely
+// Handle PIP Icon toggle changes
 togglePipIcon?.addEventListener('change', () => {
     const enabled = togglePipIcon.checked;
     if (chrome.storage && chrome.storage.local) {
         chrome.storage.local.set({ onMediaPipIcon: enabled });
     }
+});
 
-    // Save to storage (content scripts will listen for changes via chrome.storage.onChanged)
+// Handle Big Screen toggle changes
+toggleBigScreen?.addEventListener('change', () => {
+    const enabled = toggleBigScreen.checked;
     if (chrome.storage && chrome.storage.local) {
-        chrome.storage.local.set({ onMediaPipIcon: enabled });
+        chrome.storage.local.set({ bigScreenMode: enabled });
+    }
+});
+
+// Domain-Specific Ad Blocker Toggle Init & Handler
+if (chrome.tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs && tabs.length > 0 && tabs[0].url && tabs[0].url.startsWith('http')) {
+            currentTabHostname = getHostName(tabs[0].url);
+            
+            if (adblockerRow) {
+                adblockerRow.style.display = 'flex';
+                let shortHost = currentTabHostname.substring(0, 16);
+                if (currentTabHostname.length > 16) shortHost += '...';
+                adblockerLabel.textContent = `Ads Blocker (${shortHost})`;
+            }
+
+            chrome.storage.local.get([`adblockEnabled_${currentTabHostname}`], (result) => {
+                const isUserPref = result[`adblockEnabled_${currentTabHostname}`] !== false; // Default true
+
+                chrome.scripting.executeScript({
+                    target: { tabId: tabs[0].id },
+                    func: () => {
+                        if (window.location.hostname.includes('youtube.com')) {
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const videoId = urlParams.get('v') || 'default';
+                            const disableUntil = localStorage.getItem(`pip_yt_block_${videoId}`);
+                            if (disableUntil && Date.now() < parseInt(disableUntil, 10)) {
+                                return false; // Auto-disabled script
+                            }
+                        }
+                        return true;
+                    }
+                }).then((results) => {
+                    const isAutoEnabled = results && results[0] && results[0].result;
+                    if (toggleAdBlocker) toggleAdBlocker.checked = isUserPref && isAutoEnabled;
+                }).catch(() => {
+                    if (toggleAdBlocker) toggleAdBlocker.checked = isUserPref;
+                });
+            });
+        }
+    });
+}
+
+// Handle Ad Blocker Toggle Setting
+toggleAdBlocker?.addEventListener('change', () => {
+    if (!currentTabHostname) return;
+    const enabled = toggleAdBlocker.checked;
+    
+    if (chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ [`adblockEnabled_${currentTabHostname}`]: enabled });
+    }
+    
+    if (enabled && chrome.tabs) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs && tabs.length > 0) {
+                chrome.scripting.executeScript({
+                    target: { tabId: tabs[0].id },
+                    func: () => {
+                        if (window.location.hostname.includes('youtube.com')) {
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const videoId = urlParams.get('v') || 'default';
+                            localStorage.removeItem(`pip_yt_block_${videoId}`);
+                        }
+                    }
+                }).catch(() => {});
+            }
+        });
     }
 });
 
