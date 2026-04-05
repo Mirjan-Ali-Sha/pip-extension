@@ -48,6 +48,12 @@ PIP Anywhere utilizes a unique triple-layered strategy for eliminating ad fricti
 ### Method 3: Big Screen Mode (Beta)
 Turn any video into a native full-viewport theater experience immediately without triggering the browser's native full-screen. This stretches the player across the width of the screen while preserving comments and recommended feeds safely anchored below the spacer injection!
 
+### Method 4: Adaptive Ads Blocker
+1. **Auto-Skip**: The extension automatically identifies and clicks "Skip Ad" buttons on YouTube and Hotstar as soon as they become available.
+2. **Fast-Forward & Mute**: For unskippable ads, the player is automatically set to **16x speed** and muted to minimize the interruption.
+3. **Manual Override**: If you wish to disable ad-blocking for a specific site, use the **Ads Blocker (This Site)** toggle in the extension popup.
+    - *Note*: If the extension detects a strict anti-adblock ban (e.g., on YouTube), it may auto-disable to preserve video playback. You can manually re-enable it at any time to clear the penalty and resume blocking.
+
 ## 🔒 Privacy First: Zero Tracking, Zero Data Collection
 
 Your privacy is the core pillar of PIP Anywhere's design. We believe your viewing habits are your own business.

@@ -140,22 +140,46 @@ async function loadAllMedia(force = false) {
                         const artistEl = document.querySelector('#owner-name a, ytd-channel-name a, .ytp-title-channel-name');
                         if (artistEl) topArtist = artistEl.innerText;
                     } else if (hn.includes('netflix.com')) {
-                        const netflixTitle = document.querySelector('.video-title h4, .player-status-main-title, .preview-title, .fallback-text');
+                        const netflixTitle = document.querySelector('.video-title, .player-status-main-title, [data-uia="video-title"], .ellipsize-text, .player-status-title h4');
                         if (netflixTitle) topTitle = netflixTitle.innerText || topTitle;
-                        else if (topTitle === 'Netflix') topTitle = 'Playing on Netflix';
+                        
+                        if (topTitle === 'Netflix') topTitle = 'Playing on Netflix';
                     } else if (hn.includes('hotstar.com')) {
-                        const hotstarTitle = document.querySelector('h1.title, .show-name, .tray-title');
-                        if (hotstarTitle) topTitle = hotstarTitle.innerText || topTitle;
+                        // Aggressive Hotstar Show Title Search
+                        const selectors = [
+                            'h1[class*="title" i]', 'h2[class*="title" i]',
+                            '.show-title', '.content-title', '.watch-title', '.title-name',
+                            '.title-container h1', '.video-title', '.title-text'
+                        ];
+                        for (const sel of selectors) {
+                            const el = document.querySelector(sel);
+                            if (el && el.innerText && el.innerText.length > 3) {
+                                topTitle = el.innerText;
+                                break;
+                            }
+                        }
+                        
+                        // Clean up generic JioHotstar page titles
+                        if (topTitle.includes('JioHotstar') || topTitle.includes('Watch TV Shows')) {
+                            topTitle = topTitle.replace(/JioHotstar\s*-\s*/i, '')
+                                             .replace(/\s*-\s*Watch TV Shows.*$/i, '')
+                                             .trim();
+                        }
                     }
 
                     if (navigator.mediaSession && navigator.mediaSession.metadata) {
-                        if (navigator.mediaSession.metadata.title && (!topTitle || topTitle.length < 5 || hn.includes('hotstar'))) {
-                            topTitle = navigator.mediaSession.metadata.title;
+                        const meta = navigator.mediaSession.metadata;
+                        // Only override if the mediaSession title looks more specific than our generic site title
+                        if (meta.title && meta.title.length > 5 && !meta.title.includes('JioHotstar') && meta.title !== 'Netflix') {
+                            topTitle = meta.title;
                         }
-                        if (navigator.mediaSession.metadata.artist && !topArtist) {
-                            topArtist = navigator.mediaSession.metadata.artist;
+                        if (meta.artist && !topArtist) {
+                            topArtist = meta.artist;
                         }
                     }
+
+                    // Final fallback cleanup for any site
+                    if (topTitle.length > 60) topTitle = topTitle.substring(0, 57) + '...';
 
                     function findAllVideos(root = document) {
                         let videos = [];
