@@ -32,7 +32,16 @@ PIP Anywhere utilizes a unique triple-layered strategy for eliminating ad fricti
 *   **Continuous Frame Seeking**: Bypasses embedded Server-Side Ad Injections by compounding `video.playbackRate = 16` alongside aggressive `video.currentTime += 2` jumps to force the media buffer out of the ad block and back to the show.
 *   **Hidden State Interception**: Captures proprietary hidden React states (like `[data-testid="bbtype-video"]`) to realize when Hotstar switches server feeds dynamically.
 
-## 🛠️ Usage
+## 🛠️ How to install "PIP Anywhere" from this GitHub Repository
+
+1.  **Download the Repository**: Click on the green `Code` button and select `Download ZIP`, or clone the repository using `git clone https://github.com/Mirjan-Ali-Sha/pip-extension.git`.
+2.  **Extract the Files**: If you downloaded the ZIP, extract it to a folder of your choice.
+3.  **Open Browser Extensions**: Open Google Chrome or Microsoft Edge and navigate to `chrome://extensions/` (or `edge://extensions/`).
+4.  **Enable Developer Mode**: Toggle the **Developer mode** switch (usually in the top right corner).
+5.  **Load Unpacked**: Click the **Load unpacked** button and select the folder where you extracted/cloned the extension.
+6.  **Start Viewing**: PIP Anywhere is now ready! Pin it to your toolbar for easy access to the Media Hub.
+
+## 🚀 Usage Guide (Feb 2026 Update)
 
 ### Method 1: The Media Hub (Best for Multitasking)
 1. Click the extension icon in your toolbar to see all active media across all tabs.
@@ -41,9 +50,9 @@ PIP Anywhere utilizes a unique triple-layered strategy for eliminating ad fricti
 4. Toggle **Big Screen Mode (Beta)** or the universal **On-media PIP Icon** directly.
 
 ### Method 2: Floating Icon
-1. Hover over any video.
-2. Click the floating **PIP icon**.
-3. The icon will glow. Click it again to return the video to the tab.
+1. Hover over any video on any website.
+2. Click the floating **PIP icon** that appears in the corner.
+3. The icon will glow purple to indicate PIP is active. Click it again to return the video to the tab.
 
 ### Method 3: Big Screen Mode (Beta)
 Turn any video into a native full-viewport theater experience immediately without triggering the browser's native full-screen. This stretches the player across the width of the screen while preserving comments and recommended feeds safely anchored below the spacer injection!
@@ -68,3 +77,6 @@ Your privacy is the core pillar of PIP Anywhere's design. We believe your viewin
 
 **Author**: Mirjan Ali Sha  
 *Concept, Development & Advanced Logic Architecture*
+
+---
+*Last Updated: Feb 2026*

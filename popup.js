@@ -46,7 +46,7 @@ if (chrome.tabs) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs && tabs.length > 0 && tabs[0].url && tabs[0].url.startsWith('http')) {
             currentTabHostname = getHostName(tabs[0].url);
-            
+
             if (adblockerRow) {
                 adblockerRow.style.display = 'flex';
                 let shortHost = currentTabHostname.substring(0, 16);
@@ -85,11 +85,11 @@ if (chrome.tabs) {
 toggleAdBlocker?.addEventListener('change', () => {
     if (!currentTabHostname) return;
     const enabled = toggleAdBlocker.checked;
-    
+
     if (chrome.storage && chrome.storage.local) {
         chrome.storage.local.set({ [`adblockEnabled_${currentTabHostname}`]: enabled });
     }
-    
+
     if (enabled && chrome.tabs) {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             if (tabs && tabs.length > 0) {
@@ -102,7 +102,7 @@ toggleAdBlocker?.addEventListener('change', () => {
                             localStorage.removeItem(`pip_yt_block_${videoId}`);
                         }
                     }
-                }).catch(() => {});
+                }).catch(() => { });
             }
         });
     }
@@ -142,7 +142,7 @@ async function loadAllMedia(force = false) {
                     } else if (hn.includes('netflix.com')) {
                         const netflixTitle = document.querySelector('.video-title, .player-status-main-title, [data-uia="video-title"], .ellipsize-text, .player-status-title h4');
                         if (netflixTitle) topTitle = netflixTitle.innerText || topTitle;
-                        
+
                         if (topTitle === 'Netflix') topTitle = 'Playing on Netflix';
                     } else if (hn.includes('hotstar.com')) {
                         // Aggressive Hotstar Show Title Search
@@ -158,12 +158,12 @@ async function loadAllMedia(force = false) {
                                 break;
                             }
                         }
-                        
+
                         // Clean up generic JioHotstar page titles
                         if (topTitle.includes('JioHotstar') || topTitle.includes('Watch TV Shows')) {
                             topTitle = topTitle.replace(/JioHotstar\s*-\s*/i, '')
-                                             .replace(/\s*-\s*Watch TV Shows.*$/i, '')
-                                             .trim();
+                                .replace(/\s*-\s*Watch TV Shows.*$/i, '')
+                                .trim();
                         }
                     }
 
@@ -215,36 +215,72 @@ async function loadAllMedia(force = false) {
                         return videos;
                     }
                     function getBestThumbnail(v) {
-                        // 1. Check YouTube specific ID
                         const urlParams = new URLSearchParams(window.location.search);
                         const ytId = urlParams.get('v');
+
+                        // 1. YouTube Specific High-Res
                         if (hn.includes('youtube.com') && ytId) {
                             return `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`;
                         }
 
-                        // 2. Check navigator.mediaSession
+                        // 2. Navigator.mediaSession Artwork (highest quality if set)
                         if (navigator.mediaSession && navigator.mediaSession.metadata && navigator.mediaSession.metadata.artwork) {
                             const artwork = navigator.mediaSession.metadata.artwork;
                             if (artwork.length > 0) return artwork[artwork.length - 1].src;
                         }
 
-                        // 3. Check video poster
-                        if (v.poster) return v.poster;
-
-                        // 4. Check Open Graph image (Movie posters often here)
-                        const ogImg = document.querySelector('meta[property="og:image"]') || document.querySelector('meta[name="twitter:image"]');
-                        if (ogImg && ogImg.content) {
-                            let src = ogImg.content;
-                            if (src.startsWith('//')) src = 'https:' + src;
-                            if (src.startsWith('/')) src = window.location.origin + src;
-                            return src;
+                        // 3. Platform-Specific Heuristics (Netflix, Hotstar, Zee5)
+                        if (hn.includes('netflix.com')) {
+                            const netflixImg = document.querySelector('.video-title img, .player-poster img, [data-uia="mini-modal-video"] img, .ellipsize-text + img');
+                            if (netflixImg && netflixImg.src && !netflixImg.src.includes('logo')) return netflixImg.src;
+                        } else if (hn.includes('hotstar.com')) {
+                            const hotstarImg = document.querySelector('.poster-container img, .tile-image img, .tray-image img, .detail-image img');
+                            if (hotstarImg && hotstarImg.src) return hotstarImg.src;
+                        } else if (hn.includes('zee5.com')) {
+                            const z5Img = document.querySelector('.posterContainer img, .videoThumb img, .main-poster img');
+                            if (z5Img && z5Img.src) return z5Img.src;
                         }
 
-                        // 5. Check Zee5 specific poster elements
-                        const z5Poster = document.querySelector('.posterContainer img, .videoThumb img');
-                        if (z5Poster && z5Poster.src) return z5Poster.src;
+                        // 4. Video Poster Attribute
+                        if (v.poster) return v.poster;
 
-                        return '';
+                        // 5. OpenGraph & Meta Metadata (High to Low priority)
+                        const metaSelectors = [
+                            'meta[property="og:image:secure_url"]',
+                            'meta[property="og:image"]',
+                            'meta[name="twitter:image"]',
+                            'link[rel="image_src"]',
+                            'link[rel="shortcut icon"]'
+                        ];
+                        for (const sel of metaSelectors) {
+                            const el = document.querySelector(sel);
+                            const content = el ? (el.content || el.href) : null;
+                            if (content && content.length > 10 && !content.includes('favicon')) {
+                                let src = content;
+                                if (src.startsWith('//')) src = 'https:' + src;
+                                if (src.startsWith('/')) src = window.location.origin + src;
+                                return src;
+                            }
+                        }
+
+                        // 6. Largest Image Area Fallback
+                        // Scans the page for the largest visible image (likely the show poster/billboard)
+                        let bestImg = '';
+                        let maxArea = 0;
+                        document.querySelectorAll('img').forEach(img => {
+                            const rect = img.getBoundingClientRect();
+                            const area = rect.width * rect.height;
+                            if (area > maxArea && rect.width > 100 && rect.height > 100) {
+                                // Filter out common UI elements (logos, profile pics)
+                                const src = img.src || '';
+                                if (!src.includes('logo') && !src.includes('avatar') && !src.includes('icon')) {
+                                    maxArea = area;
+                                    bestImg = src;
+                                }
+                            }
+                        });
+
+                        return bestImg || '';
                     }
 
                     const vs = findAllVideos();
@@ -268,6 +304,7 @@ async function loadAllMedia(force = false) {
                             id: v.dataset.pipId,
                             playing: !v.paused && !v.ended && v.readyState > 2,
                             pip: document.pictureInPictureElement === v,
+                            muted: v.muted,
                             currentTime: v.currentTime || 0,
                             duration: v.duration || 0,
                             poster: getBestThumbnail(v),
@@ -334,6 +371,8 @@ function sendCommand(tabId, videoId, command) {
                 else if (cmd === 'pause') v.pause();
                 else if (cmd === 'forward') v.currentTime += 10;
                 else if (cmd === 'backward') v.currentTime -= 10;
+                else if (cmd === 'mute') v.muted = true;
+                else if (cmd === 'unmute') v.muted = false;
                 else if (cmd === 'pip') {
                     if (document.pictureInPictureElement === v) {
                         document.exitPictureInPicture().catch(() => { });
@@ -385,6 +424,8 @@ function renderMediaList() {
     const iconForward = `<svg width="18" height="18" viewBox="0 0 24 24"><path d="M13 6v12l9-6-9-6zm-11 0v12l9-6-9-6z"/></svg>`;
     const iconPlay = `<svg width="22" height="22" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
     const iconPause = `<svg width="22" height="22" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+    const iconUnmute = `<svg width="18" height="18" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
+    const iconMute = `<svg width="18" height="18" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>`;
     const iconPip = `<svg width="18" height="18" viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7h9v6h-9z"/></svg>`;
 
     allVideosCache.forEach(v => {
@@ -429,6 +470,10 @@ function renderMediaList() {
                         ${isPlaying ? iconPause : iconPlay}
                     </button>
                     <button class="btn-ctrl" data-cmd="forward" title="Forward 10s">${iconForward}</button>
+                    <div class="divider-vertical"></div>
+                    <button class="btn-ctrl btn-mute" data-cmd="${v.muted ? 'unmute' : 'mute'}" title="${v.muted ? 'Unmute' : 'Mute'}">
+                        ${v.muted ? iconMute : iconUnmute}
+                    </button>
                     <div class="divider-vertical"></div>
                     <button class="btn-ctrl btn-pip ${v.pip ? 'active-pip' : ''}" data-cmd="pip" title="Picture-in-Picture">
                         ${iconPip}
@@ -501,6 +546,12 @@ function renderMediaList() {
                 } else if (cmd === 'play') {
                     btn.dataset.cmd = 'pause';
                     btn.innerHTML = iconPause;
+                } else if (cmd === 'mute') {
+                    btn.dataset.cmd = 'unmute';
+                    btn.innerHTML = iconMute;
+                } else if (cmd === 'unmute') {
+                    btn.dataset.cmd = 'mute';
+                    btn.innerHTML = iconUnmute;
                 }
             });
         });
