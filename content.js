@@ -488,7 +488,51 @@
     // Fallback interval
     setInterval(scan, 1500);
 
+    // ─── Context Menu Unblocking & Visibility ──────────────────────────
+    
+    /**
+     * Check if there's a video under the cursor, even behind overlays.
+     */
+    function isOverVideo(e) {
+        // 1. Direct target or ancestor is video
+        if (e.target.tagName === 'VIDEO' || e.target.closest('video')) return true;
+
+        // 2. Elements at point (checking behind overlays)
+        if (document.elementsFromPoint) {
+            const elements = document.elementsFromPoint(e.clientX, e.clientY);
+            for (const el of elements) {
+                if (el.tagName === 'VIDEO' || el.closest('video')) return true;
+                if (el.shadowRoot && el.shadowRoot.querySelector('video')) return true;
+            }
+        }
+
+        // 3. Shadow DOM check for direct target
+        if (e.target.shadowRoot && e.target.shadowRoot.querySelector('video')) return true;
+
+        return false;
+    }
+
+    // Detect right-click to update context menu visibility
+    document.addEventListener('mousedown', (e) => {
+        if (e.button === 2) { // Right click
+            const overVideo = isOverVideo(e);
+            chrome.runtime.sendMessage({ 
+                type: 'update-context-menu', 
+                visible: overVideo 
+            });
+        }
+    }, true);
+
+    // Unblock context menu on video areas
+    window.addEventListener('contextmenu', (e) => {
+        if (isOverVideo(e)) {
+            // Stop site-specific scripts (like YouTube) from blocking the browser's menu
+            e.stopImmediatePropagation();
+        }
+    }, true);
+
     // ─── Shortcut Fallback ────────────────────────────────────────────
+
     // Since chrome.commands can be flaky or unbound, we listen manually too.
     document.addEventListener('keydown', (e) => {
         if (e.altKey && (e.code === 'KeyP' || e.key === 'p' || e.key === 'P')) {

@@ -46,3 +46,40 @@ chrome.commands.onCommand.addListener((command) => {
         }
     }
 });
+
+// Initialize Context Menu Robustly
+const initContextMenu = () => {
+    chrome.contextMenus.removeAll(() => {
+        chrome.contextMenus.create({
+            id: "pip-anywhere-context-toggle",
+            title: "Toggle Picture-in-Picture",
+            contexts: ["all"],
+            visible: false // Hidden by default, content script will enable it on right-click over videos
+        }, () => {
+            if (chrome.runtime.lastError) {
+                console.warn("Context menu init error:", chrome.runtime.lastError);
+            }
+        });
+    });
+};
+
+chrome.runtime.onInstalled.addListener(initContextMenu);
+chrome.runtime.onStartup.addListener(initContextMenu);
+
+// Handle messages from content script
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (msg.type === 'update-context-menu') {
+        chrome.contextMenus.update("pip-anywhere-context-toggle", {
+            visible: msg.visible
+        });
+        sendResponse({ success: true });
+    }
+});
+
+// Handle Context Menu Click
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === "pip-anywhere-context-toggle") {
+        togglePIP(tab);
+    }
+});
+
