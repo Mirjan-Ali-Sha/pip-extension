@@ -8,6 +8,8 @@ const openSettings = document.getElementById('openSettings');
 
 let allVideosCache = [];
 let lastInteractionTime = 0; // Throttles polling during user action
+let pollTimeout = null;
+let currentInterval = 1000;
 
 const togglePipIcon = document.getElementById('togglePipIcon');
 const toggleBigScreen = document.getElementById('toggleBigScreen');
@@ -123,7 +125,12 @@ async function loadAllMedia(force = false) {
     allVideosCache = [];
     try {
         const tabs = await chrome.tabs.query({});
-        const validTabs = tabs.filter(t => t.url && (t.url.startsWith('http') || t.url.startsWith('file')));
+        // Optimization: Skip discarded tabs to avoid heavy script injection during battery saver
+        const validTabs = tabs.filter(t => 
+            t.url && 
+            (t.url.startsWith('http') || t.url.startsWith('file')) && 
+            !t.discarded
+        );
 
         const promises = validTabs.map(tab => {
             return chrome.scripting.executeScript({
@@ -164,6 +171,24 @@ async function loadAllMedia(force = false) {
                             topTitle = topTitle.replace(/JioHotstar\s*-\s*/i, '')
                                 .replace(/\s*-\s*Watch TV Shows.*$/i, '')
                                 .trim();
+                        }
+                    } else if (hn.includes('airtelxstream')) {
+                        const titleEl = document.querySelector('.player-upper-layer-v2 .content-tag-title .title');
+                        const descSpans = document.querySelectorAll('.player-upper-layer-v2 .content-tag-title .description span');
+                        if (titleEl && titleEl.innerText) {
+                            let displayTitle = titleEl.innerText;
+                            let epInfo = '';
+                            let epSub = '';
+                            if (descSpans.length > 0 && descSpans[0] && descSpans[0].innerText) {
+                                epInfo = descSpans[0].innerText;
+                            }
+                            if (descSpans.length > 2 && descSpans[2] && descSpans[2].innerText) {
+                                epSub = descSpans[2].innerText;
+                            }
+                            if (epInfo || epSub) {
+                                displayTitle += ` - ${epInfo} ${epSub}`.trim();
+                            }
+                            topTitle = displayTitle;
                         }
                     }
 
@@ -239,6 +264,12 @@ async function loadAllMedia(force = false) {
                         } else if (hn.includes('zee5.com')) {
                             const z5Img = document.querySelector('.posterContainer img, .videoThumb img, .main-poster img');
                             if (z5Img && z5Img.src) return z5Img.src;
+                        } else if (hn.includes('mxplayer.in')) {
+                            const mxImg = document.querySelector('.mx-poster img, .poster-img, img[class*="poster" i], img[src*="poster" i]');
+                            if (mxImg && mxImg.src) return mxImg.src;
+                        } else if (hn.includes('airtelxstream.in')) {
+                            const airtelImg = document.querySelector('.poster-container img, .tile-image img, img[class*="poster" i], img[class*="player" i]');
+                            if (airtelImg && airtelImg.src) return airtelImg.src;
                         }
 
                         // 4. Video Poster Attribute
@@ -296,6 +327,7 @@ async function loadAllMedia(force = false) {
                         if (host.includes('amazon')) topArtist = 'Amazon';
                         if (host.includes('hotstar')) topArtist = 'Hotstar';
                         if (host.includes('airtelxstream')) topArtist = 'AirtelXstream';
+                        if (host.includes('mxplayer')) topArtist = 'MX Player';
                     }
 
                     return vs.map(v => {
@@ -340,8 +372,20 @@ async function loadAllMedia(force = false) {
 
         renderMediaList();
 
+        // Adaptive Polling: Slow down if no media found to save energy
+        if (allVideosCache.length === 0 && !force) {
+            currentInterval = Math.min(currentInterval + 500, 4000); // Max 4s
+        } else if (!force) {
+            currentInterval = 1000; // Reset to 1s if media active
+        }
+        
     } catch (e) {
-        mediaList.innerHTML = '<div class="empty-state">Error scanning tabs.</div>';
+        mediaList.innerHTML = `<div class="empty-state">Error scanning tabs.</div>`;
+    } finally {
+        if (!force) {
+            clearTimeout(pollTimeout);
+            pollTimeout = setTimeout(loadAllMedia, currentInterval);
+        }
     }
 }
 
@@ -351,12 +395,50 @@ function getHostName(url) {
     } catch (e) { return 'unknown'; }
 }
 
-function sendCommand(tabId, videoId, command) {
+function sendCommand(tabId, videoId, command, isNetflix = false) {
     const isMultiPip = localStorage.getItem('multiple_pip') === 'true';
 
     chrome.scripting.executeScript({
         target: { tabId: tabId, allFrames: true },
+        world: isNetflix ? 'MAIN' : 'ISOLATED',
         func: (vid, cmd, multiPip) => {
+            // 1. Netflix API Integration (Main World only)
+            if (window.location.hostname.includes('netflix.com')) {
+                let handled = false;
+                try {
+                    const getNetflixPlayer = () => {
+                        try { return window.netflix.appContext.state.playerApp.getAPI().videoPlayer; } catch(e) {}
+                        try { return window.netflix.appContext.getPlayerApp().getAPI().videoPlayer; } catch(e) {}
+                        return null;
+                    };
+                    const vp = getNetflixPlayer();
+                    if (vp) {
+                        const sess = vp.getVideoPlayerSessionIds();
+                        const player = vp.getVideoPlayerBySessionId(sess[sess.length - 1]);
+                        if (player) {
+                            if (cmd === 'forward') { player.seek(player.getCurrentPosition() + 10000); handled = true; }
+                            else if (cmd === 'backward') { player.seek(player.getCurrentPosition() - 10000); handled = true; }
+                            else if (cmd === 'play') { player.play(); handled = true; }
+                            else if (cmd === 'pause') { player.pause(); handled = true; }
+                            else if (cmd === 'mute') { player.setMuted(true); handled = true; }
+                            else if (cmd === 'unmute') { player.setMuted(false); handled = true; }
+                        }
+                    }
+                } catch (e) { }
+                
+                if (handled) return;
+
+                // STRICT_DRM_GUARD: Only block dangerous seeking fallback for Netflix.
+                // Allow 'pip' or other commands to fall through to standard video attributes.
+                if (cmd === 'forward' || cmd === 'backward') {
+                    const kCode = cmd === 'forward' ? 39 : 37;
+                    const opt = { keyCode: kCode, which: kCode, bubbles: true, cancelable: true, view: window };
+                    document.dispatchEvent(new KeyboardEvent('keydown', opt));
+                    document.dispatchEvent(new KeyboardEvent('keyup', opt));
+                    return; 
+                }
+            }
+
             function findAllVideos(root = document) {
                 let videos = [];
                 root.querySelectorAll('*').forEach(n => {
@@ -371,6 +453,7 @@ function sendCommand(tabId, videoId, command) {
                 else if (cmd === 'pause') v.pause();
                 else if (cmd === 'forward') v.currentTime += 10;
                 else if (cmd === 'backward') v.currentTime -= 10;
+                else if (cmd === 'mute') v.muted = true;
                 else if (cmd === 'mute') v.muted = true;
                 else if (cmd === 'unmute') v.muted = false;
                 else if (cmd === 'pip') {
@@ -398,6 +481,8 @@ function getThemeColor(host) {
     if (host.includes('netflix')) return '#232937'; // Dark blue-grey
     if (host.includes('amazon')) return '#232f3e'; // Amazon Navy
     if (host.includes('hotstar')) return '#0d1d2e'; // Hotstar Blue
+    if (host.includes('mxplayer')) return '#0f172a'; // Slate dark blue/black for MX Player
+    if (host.includes('airtelxstream')) return '#c21e26'; // Premium Airtel Red color
     return '#292a2d'; // Default
 }
 
@@ -517,14 +602,40 @@ function renderMediaList() {
             // Send seek command (using script injection for precision)
             chrome.scripting.executeScript({
                 target: { tabId: v.tabId, allFrames: true },
+                world: v.tabUrl.includes('netflix.com') ? 'MAIN' : 'ISOLATED',
                 func: (vid, time) => {
+                    // 1. Netflix API Integration (Main World only)
+                    if (window.location.hostname.includes('netflix.com')) {
+                        let handled = false;
+                        try {
+                            const getNetflixPlayer = () => {
+                                try { return window.netflix.appContext.state.playerApp.getAPI().videoPlayer; } catch(e) {}
+                                try { return window.netflix.appContext.getPlayerApp().getAPI().videoPlayer; } catch(e) {}
+                                return null;
+                            };
+                            const vp = getNetflixPlayer();
+                            if (vp) {
+                                const sess = vp.getVideoPlayerSessionIds();
+                                const player = vp.getVideoPlayerBySessionId(sess[sess.length - 1]);
+                                if (player) {
+                                    player.seek(time * 1000);
+                                    handled = true;
+                                }
+                            }
+                        } catch (e) { }
+                        if (handled) return;
+                        return; // STRICT_DRM_GUARD: Always block fallback seeking on Netflix
+                    }
+
                     function findV(root = document) {
                         let res = [...root.querySelectorAll('video')];
                         root.querySelectorAll('*').forEach(n => { if (n.shadowRoot) res = res.concat(findV(n.shadowRoot)); });
                         return res;
                     }
                     const video = findV().find(x => x.dataset.pipId === vid);
-                    if (video && isFinite(time)) video.currentTime = time;
+                    if (video && isFinite(time)) {
+                        video.currentTime = time;
+                    }
                 },
                 args: [v.id, seekTime]
             });
@@ -538,7 +649,7 @@ function renderMediaList() {
                 e.stopPropagation(); // Prevent card click (tab switch)
                 const cmd = btn.dataset.cmd;
                 lastInteractionTime = Date.now();
-                sendCommand(v.tabId, v.id, cmd);
+                sendCommand(v.tabId, v.id, cmd, v.tabUrl.includes('netflix.com'));
 
                 if (cmd === 'pause') {
                     btn.dataset.cmd = 'play';
@@ -560,6 +671,5 @@ function renderMediaList() {
     });
 }
 
-// Initialize and auto-refresh every 1s while popup is open
+// Initialize and auto-refresh using adaptive polling while popup is open
 loadAllMedia();
-setInterval(loadAllMedia, 1000);

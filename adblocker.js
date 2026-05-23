@@ -451,6 +451,131 @@
         console.log('[PIP Anywhere] Hotstar Ad Skipper active (Lightweight).');
     }
 
+    // ─── MX Player Ad Skipper ─────────────────────────────────────────
+
+    const isMxPlayer = window.location.hostname.includes('mxplayer.in');
+
+    if (isMxPlayer) {
+        let savedVolume = null;
+
+        function mxPlayerAdBlockerLoop() {
+            if (!isUserAdblockEnabled) return;
+
+            // 1. Detect Ad Video elements
+            // MX Player's Google IMA ads inject a video element inside the player container, usually with title "Advertisement"
+            const adVideo = document.querySelector('.mx-ads-container video, video[title="Advertisement"]');
+            const isAdPlaying = !!adVideo && adVideo.offsetWidth > 0 && adVideo.offsetHeight > 0;
+
+            if (isAdPlaying) {
+                // Mute during ad to avoid sudden audio blasts
+                if (savedVolume === null && !adVideo.muted) {
+                    savedVolume = adVideo.volume;
+                    adVideo.muted = true;
+                }
+
+                // Fast-forward to maximum speed instantly
+                try {
+                    adVideo.playbackRate = 16;
+                } catch (e) {}
+
+                // Skip the ad video instantly by setting currentTime to duration or high value
+                try {
+                    if (isFinite(adVideo.duration) && adVideo.duration > 0) {
+                        adVideo.currentTime = adVideo.duration;
+                    } else {
+                        adVideo.currentTime = 9999;
+                    }
+                } catch (e) {}
+            } else {
+                // Restore settings if no ad is playing
+                if (savedVolume !== null) {
+                    const mainVideo = document.querySelector('video:not([title="Advertisement"])');
+                    if (mainVideo) {
+                        mainVideo.muted = false;
+                        mainVideo.volume = savedVolume;
+                    }
+                    savedVolume = null;
+                }
+            }
+
+            // Hide overlay ads elements directly in JS as a fallback
+            const adOverlays = document.querySelectorAll(
+                '.mx-ads-container, .mx-ad-container, .ad-content, .ads-ui, .progress-bar[style*="background-color: yellow"]'
+            );
+            adOverlays.forEach(el => {
+                el.style.setProperty('display', 'none', 'important');
+                el.style.setProperty('opacity', '0', 'important');
+                el.style.setProperty('pointer-events', 'none', 'important');
+            });
+        }
+
+        // Run frequently for ultra-responsive ad skipping
+        setInterval(mxPlayerAdBlockerLoop, 300);
+
+        console.log('[PIP Anywhere] MX Player Ad Skipper active.');
+    }
+
+    // ─── Airtel Xstream Ad Skipper ─────────────────────────────────────
+
+    const isAirtelXstream = window.location.hostname.includes('airtelxstream.in');
+
+    if (isAirtelXstream) {
+        let savedVolume = null;
+
+        function airtelXstreamAdBlockerLoop() {
+            if (!isUserAdblockEnabled) return;
+
+            // Target dynamic advertisement video frames or elements
+            const adVideo = document.querySelector('video[title="Advertisement"]');
+            const isAdPlaying = !!adVideo && adVideo.offsetWidth > 0 && adVideo.offsetHeight > 0;
+
+            if (isAdPlaying) {
+                // Mute during ad
+                if (savedVolume === null && !adVideo.muted) {
+                    savedVolume = adVideo.volume;
+                    adVideo.muted = true;
+                }
+
+                // Accelerate video speed
+                try {
+                    adVideo.playbackRate = 16;
+                } catch (e) {}
+
+                // Skip ad frame
+                try {
+                    if (isFinite(adVideo.duration) && adVideo.duration > 0) {
+                        adVideo.currentTime = adVideo.duration - 0.1;
+                    } else {
+                        adVideo.currentTime = 9999;
+                    }
+                } catch (e) {}
+            } else {
+                // Restore settings
+                if (savedVolume !== null) {
+                    const mainVideo = document.querySelector('video:not([title="Advertisement"])');
+                    if (mainVideo) {
+                        mainVideo.muted = false;
+                        mainVideo.volume = savedVolume;
+                    }
+                    savedVolume = null;
+                }
+            }
+
+            // Programmatically hide standard ad overlay blocks
+            const adOverlays = document.querySelectorAll('#ad-container, .ads-container');
+            adOverlays.forEach(el => {
+                el.style.setProperty('display', 'none', 'important');
+                el.style.setProperty('opacity', '0', 'important');
+                el.style.setProperty('pointer-events', 'none', 'important');
+            });
+        }
+
+        // Fast execution to suppress ads immediately
+        setInterval(airtelXstreamAdBlockerLoop, 300);
+
+        console.log('[PIP Anywhere] Airtel Xstream Ad Skipper active.');
+    }
+
     // ─── General Cosmetic Ad Filter (All Sites) ──────────────────────
 
     function hideGeneralAds() {
@@ -493,7 +618,7 @@
 
     const isZee5 = window.location.hostname.includes('zee5.com');
 
-    if (!isYouTube && !isZee5 && !isHotstar) {
+    if (!isYouTube && !isZee5 && !isHotstar && !isMxPlayer && !isAirtelXstream) {
         // Run cosmetic filter periodically (catches dynamically loaded ads)
         hideGeneralAds();
         setInterval(hideGeneralAds, 2000);

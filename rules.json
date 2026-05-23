@@ -1144,5 +1144,58 @@
                 "hotstar.com"
             ]
         }
+    },
+    {
+        "id": 9003,
+        "priority": 2,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "||imasdk.googleapis.com",
+            "initiatorDomains": [
+                "mxplayer.in",
+                "airtelxstream.in"
+            ]
+        }
+    },
+    {
+        "id": 9004,
+        "priority": 2,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "||adconfig.wynk.in",
+            "initiatorDomains": [
+                "airtelxstream.in"
+            ]
+        }
+    },
+    {
+        "id": 9005,
+        "priority": 2,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "||adassets.wynk.in",
+            "initiatorDomains": [
+                "airtelxstream.in"
+            ]
+        }
+    },
+    {
+        "id": 9006,
+        "priority": 2,
+        "action": {
+            "type": "block"
+        },
+        "condition": {
+            "urlFilter": "/wynk/ads/",
+            "initiatorDomains": [
+                "airtelxstream.in"
+            ]
+        }
     }
 ]

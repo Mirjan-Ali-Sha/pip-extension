@@ -268,7 +268,9 @@
     const BIG_SCREEN_CONTAINER_CLASS = 'pip-anywhere-big-screen-active';
     const BIG_SCREEN_COLUMN_CLASS = 'pip-anywhere-column-flow';
     const INCLUDED_BIG_SCREEN_DOMAINS = [
-        'zee5.com'
+        'zee5.com',
+        'mxplayer.in',
+        'airtelxstream.in'
     ];
 
     function syncBigScreenMode() {

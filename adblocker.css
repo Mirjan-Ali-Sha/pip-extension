@@ -95,3 +95,32 @@ iframe[src*="outbrain.com"] {
 [data-adunit] {
     display: none !important;
 }
+
+/* ─── MX Player Ad Elements ────────────────────────────────────── */
+
+/* Hide MX Player IMA ad overlays and UI elements */
+.mx-ads-container,
+.mx-ad-container,
+.ad-content,
+.ads-ui,
+.progress-bar[style*="background-color: yellow"] {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+}
+
+/* ─── Airtel Xstream Ad Elements ────────────────────────────────── */
+
+/* Hide Airtel Xstream and Wynk ad overlays and placeholders */
+#ad-container,
+.ads-container {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+}
